@@ -18,6 +18,7 @@ import * as dataImportActionCreator from '../../store/action/dataImportAction';
 import { isNullUndefined, decryptData, deleteFile, findFeaturesRole, isCookieValid } from '../shared/helper';
 import ClientChangeModal from './clientChangeModal';
 import NavigationMenu from './Nav';
+import ResponsiveSideDrawer from './ResponsiveSideDrawer';
 import { updateSideBarVisibility } from '../../store/action/sideBarAction';
 
 const Sidebar = () => {
@@ -31,16 +32,16 @@ const Sidebar = () => {
    const { selectedVendor, selectedOperationalArea, fileName, dataSaveCompleted } = useSelector((state) => state.dataImportManage);
    const { showSideBar } = useSelector((state) => state.sideBar);
 
-   useEffect(() => {
-      handleResize();
-   }, [document.documentElement.clientWidth]);
+   // useEffect(() => {
+   //    handleResize();
+   // }, [document.documentElement.clientWidth]);
 
-   const handleResize = () => {
-      if (document.documentElement.clientWidth > 743) {
-         return dispatch(updateSideBarVisibility(true));
-      }
-      dispatch(updateSideBarVisibility(false));
-   };
+   // const handleResize = () => {
+   //    if (document.documentElement.clientWidth > 743) {
+   //       return dispatch(updateSideBarVisibility(true));
+   //    }
+   //    dispatch(updateSideBarVisibility(false));
+   // };
 
    useEffect(() => {
       if (isNullUndefined(userFeatures)) {
@@ -94,8 +95,8 @@ const Sidebar = () => {
       setDataImportDialog(false);
    }
 
-   const onNavItemClick = (e, to) => {
-      e.preventDefault();
+   const onNavItemClick = (e=null, to) => {
+      e && e.preventDefault();
       dispatch(updateSideBarVisibility(false));
       if (location.pathname === apiRouter.DATA_IMPORT && to !== apiRouter.DATA_IMPORT && (selectedVendor || selectedOperationalArea) && !dataSaveCompleted) {
          setDataImportDialog(true);
@@ -137,7 +138,7 @@ const Sidebar = () => {
             </CSidebarNav>
             <CSidebarMinimizer breakpoint='md' />
          </CSidebar>
-
+         <ResponsiveSideDrawer navmenu={navFeatures} navigateFunction={onNavItemClick}/>
          <ClientChangeModal
             isDialogOpen={dataImportDialog}
             continueNavigation={onContinueClick}
