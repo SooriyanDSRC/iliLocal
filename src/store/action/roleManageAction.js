@@ -2,7 +2,7 @@ import serviceCall from "../serviceCall";
 import { showSuccessSnackbar, showFailureSnackbar } from "./snackbarAction";
 import { roleManageReducerConstant } from "../reducerConstant";
 import { statusCode, displayText } from "../../constant";
-import { isEmptyNullUndefined, isStatusCodeValid } from '../../components/shared/helper';
+import { isNotEmptyNullUndefined, isStatusCodeValid } from '../../components/shared/helper';
 
 export const FetchRole = (url) => {
   return (dispatch) => {
@@ -114,7 +114,7 @@ export const DeleteRole = (url, data) => {
 export const DispatchRole = (result) => {
   return (dispatch) => {
     dispatch(EditRoleClear(null));
-    if (isEmptyNullUndefined(result) && result !== displayText.DEFAULT_PARENTID) {
+    if (isNotEmptyNullUndefined(result) && result !== displayText.DEFAULT_PARENTID) {
       dispatch(showSuccessSnackbar(displayText.SUCCESS));
       dispatch(EditRoleSuccess(true));
     } else {

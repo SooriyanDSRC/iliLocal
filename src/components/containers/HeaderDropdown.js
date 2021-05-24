@@ -12,7 +12,7 @@ import * as actionCreator from '../../store/action/userAction';
 import * as dataImportActionCreator from '../../store/action/dataImportAction';
 import { apiRouter, sessionStorageKey } from '../../constant';
 import userAvatar from '../../assets/images/avatar_img.png';
-import { isEmptyNullUndefined, setSessionStorage, decryptData, deleteFile } from '../shared/helper';
+import { isNotEmptyNullUndefined, setSessionStorage, decryptData, deleteFile } from '../shared/helper';
 import _ from 'lodash';
 import ClientChangeModal from './clientChangeModal';
 import { arrayConstants } from '../../arrayconstants';
@@ -87,8 +87,8 @@ const HeaderDropdown = () => {
 
    const dataImportScreenCheck = () => {
       return (location.pathname === apiRouter.DATA_IMPORT) &&
-         ((isEmptyNullUndefined(selectedVendor) && selectedVendor !== displayText.DEFAULT_PARENTID) ||
-            (isEmptyNullUndefined(selectedOperationalArea) && selectedOperationalArea !== displayText.DEFAULT_PARENTID))
+         ((isNotEmptyNullUndefined(selectedVendor) && selectedVendor !== displayText.DEFAULT_PARENTID) ||
+            (isNotEmptyNullUndefined(selectedOperationalArea) && selectedOperationalArea !== displayText.DEFAULT_PARENTID))
    };
 
    const triggerRevokeToken = () => {
@@ -135,7 +135,7 @@ const HeaderDropdown = () => {
 
 
    const handleSelectClient = (selectedClientOption) => {
-      if (!isEmptyNullUndefined(selectedClientOption)) { return; }
+      if (!isNotEmptyNullUndefined(selectedClientOption)) { return; }
       let selectedClientDetails = _.filter(clientsList, function (client) {
          return client.clientName === selectedClientOption
       });
@@ -180,8 +180,7 @@ const HeaderDropdown = () => {
    useEffect(() => {
       setClientsList([...JSON.parse(decryptData(sessionStorageKey.USER_DETAILS)).clients]);
       setSelectedClient(JSON.parse(decryptData(sessionStorageKey.USER_CURRENT_CLIENT_DETAILS))?.clientName);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [localStorage.USER_DETAILS]);
+   },[]);
 
    return (
       <>

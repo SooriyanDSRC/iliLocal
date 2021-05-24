@@ -103,7 +103,6 @@ export default function Vendors() {
       if (isVendorDeleted || isVendorAdded || isVendorEdited) {
          (page === initialPage) ? vendorCall() : setPage(initialPage);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [isVendorDeleted, isVendorAdded, isVendorEdited]);
 
    useEffect(() => {

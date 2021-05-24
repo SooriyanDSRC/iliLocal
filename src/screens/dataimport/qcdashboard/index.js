@@ -20,7 +20,7 @@ import * as dataImportActionCreator from '../../../store/action/dataImportAction
 import { showFailureSnackbar, showSuccessSnackbar } from '../../../store/action/snackbarAction';
 import serviceCall from '../../../store/serviceCall';
 import CommonStyles from '../../../scss/commonStyles';
-import { isArrayContainsObject, isStatusCodeValid, isEmptyNullUndefined } from '../../../components/shared/helper';
+import { isArrayContainsObject, isStatusCodeValid, isNotEmptyNullUndefined, isEmptyNullUndefined } from '../../../components/shared/helper';
 import 'react-data-grid/dist/react-data-grid.css';
 import LightToolTip from '../../../components/shared/lightToolTip';
 import _ from 'lodash';
@@ -314,7 +314,7 @@ export default function QcDashboard(props) {
       let formdata = new FormData();
       let data = {};
       data[formDataInput.iliFieldDetails] = JSON.parse(formData?.get(formDataInput.excelTemplate)).iliFieldDetails;
-      data[formDataInput.isVersionOverWrite] = isEmptyNullUndefined(overrideVersionId);
+      data[formDataInput.isVersionOverWrite] = isNotEmptyNullUndefined(overrideVersionId);
       data[formDataInput.savedInspectionGuid] = overrideVersionGuid;
       data[formDataInput.versionId] = overrideVersionId;
       data[formDataInput.versionNotes] = notesData;
@@ -337,7 +337,7 @@ export default function QcDashboard(props) {
       if (!dataSaveCompleted) {
          let rollbackUrl = `${apiRouter.EXCEL_IMPORT}/${apiRouter.ROLLBACK_DATA}/${savedInspectionGuid}`;
          return serviceCall.getAllData(rollbackUrl).then((result) => {
-            if (!isStatusCodeValid(result, statusCode.CODE_200) || !isEmptyNullUndefined(result.data)) {
+            if (!isStatusCodeValid(result, statusCode.CODE_200) || isEmptyNullUndefined(result.data)) {
                dispatch(showFailureSnackbar(errorMessage.UNABLE_TO_REVERT));
                return;
             }
@@ -351,7 +351,7 @@ export default function QcDashboard(props) {
       }
       let url = `${apiRouter.ILI_DATA_SAVE}/${apiRouter.REVERT_ILI_DATA}/${qcResponse.iliInspectionGuid}/${qcResponse.versionId}`;
       return serviceCall.postData(url, null).then((result) => {
-         if (!isStatusCodeValid(result, statusCode.CODE_200) || !isEmptyNullUndefined(result.data)) {
+         if (!isStatusCodeValid(result, statusCode.CODE_200) || isEmptyNullUndefined(result.data)) {
             dispatch(showFailureSnackbar(errorMessage.UNABLE_TO_REVERT));
             return;
          }
@@ -387,7 +387,7 @@ export default function QcDashboard(props) {
    };
 
    const accordionDataRender = (dataIndex, accordionValue) => {
-      if (!isEmptyNullUndefined(dataIndex)) {
+      if (isEmptyNullUndefined(dataIndex)) {
          return null;
       }
       let isAccordionLengthValid = accordionValue[dataIndex].length === fieldMappingSheetConfig.fieldMapLengthCheck;
@@ -409,7 +409,7 @@ export default function QcDashboard(props) {
             </>
          );
       }
-      if ((isAccordionLengthValid || accordionValue[dataIndex] === null || isDataTypeString) && !isOpenParenthesisIncluded && !isCloseParenthesisIncluded) {
+      if ((isAccordionLengthValid || isNotEmptyNullUndefined(accordionValue[dataIndex]) || isDataTypeString) && !isOpenParenthesisIncluded && !isCloseParenthesisIncluded) {
          return (
             <>
                <CheckBoxSharpIcon className={classes.doneIconBg} /> {dataIndex}
@@ -424,7 +424,7 @@ export default function QcDashboard(props) {
                <CancelPresentationSharpIcon className={classes.closeIconBg} />
                {replacedData}
                {
-                  isEmptyNullUndefined(bracketedData)
+                  isNotEmptyNullUndefined(bracketedData)
                   && (<span className="error">({bracketedData[regularExpression.REGEX_RESULT_INDEX]})</span>)
                }
             </>
@@ -451,6 +451,9 @@ export default function QcDashboard(props) {
    };
 
    const listItemDataRender = (data, listItemValue) => {
+      if (!isNotEmptyNullUndefined(data)) {
+         return null;
+      }
       if (data.includes(qcDashboardCheck.isTable)) {
          return (_.head(data.split(qcDashboardCheck.splitParameter)));
       }
@@ -634,6 +637,9 @@ export default function QcDashboard(props) {
    }
 
    const renderSummaryDashboardGraph = (key) => {
+      if (isEmptyNullUndefined(key) || !isNotEmptyNullUndefined(iliSummaryDashboardData[key])) {
+         return null;
+      }
       let labelData = iliSummaryDashboardData[key].map((labelItem) => {
          return labelItem.value ? `${labelItem.key} - ${labelItem.value}` : `${labelItem.key} - ${fieldCheck.initialLabelData}`;
       });

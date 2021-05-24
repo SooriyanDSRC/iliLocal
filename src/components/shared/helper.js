@@ -28,17 +28,17 @@ export function getSteps() {
 
 export const deleteFile = (fileName) => {
    const url = `${apiRouter.FILE_UPLOAD}/${apiRouter.UPLOAD_CANCEL}?${apiRouter.DELETE_ORIGINAL_FILE}=${false}&${apiRouter.FILE_NAME}=${fileName}`;
-   if (isEmptyNullUndefined(fileName)) {
+   if (isNotEmptyNullUndefined(fileName)) {
       return serviceCall.postData(url, null)
    }
 }
 
 export const fetchUnitConversion = async (value, currentUnit, targetUnit, unitType) => {
    const url = `${apiRouter.FIELD_MAPPING}/${apiRouter.GET_CONVERTED_VALUE}?value=${value}&sourceUnit=${currentUnit}&targetUnit=${targetUnit}&unitType=${unitType}`;
-   if (isEmptyNullUndefined(value) &&
-      isEmptyNullUndefined(currentUnit) &&
-      isEmptyNullUndefined(targetUnit) &&
-      isEmptyNullUndefined(unitType) &&
+   if (isNotEmptyNullUndefined(value) &&
+   isNotEmptyNullUndefined(currentUnit) &&
+   isNotEmptyNullUndefined(targetUnit) &&
+   isNotEmptyNullUndefined(unitType) &&
       currentUnit !== displayText.DEFAULT_PARENTID) {
       return await serviceCall.getAllData(url);
    }
@@ -65,10 +65,16 @@ export function isUndefined(data) {
    return data !== undefined;
 }
 
-export function isEmptyNullUndefined(data) {
+export function isNotEmptyNullUndefined(data) {
    return data !== null &&
       data !== undefined &&
       data !== stringManipulationCheck.EMPTY_STRING;
+}
+
+export function isEmptyNullUndefined(data) {
+   return data === null ||
+      data === undefined ||
+      data === stringManipulationCheck.EMPTY_STRING;
 }
 
 export function isNotEmpty(data) {
@@ -92,7 +98,7 @@ export function convertToISODate(date) {
 }
 
 export function formatDate(date) {
-   return isEmptyNullUndefined(date) ? moment(date).format(displayText.YEAR_MONTH_DAY_FORMAT) : stringManipulationCheck.EMPTY_STRING;
+   return isNotEmptyNullUndefined(date) ? moment(date).format(displayText.YEAR_MONTH_DAY_FORMAT) : stringManipulationCheck.EMPTY_STRING;
 }
 
 export function isDotEmpty(data) {
@@ -108,7 +114,7 @@ export function removeCharacter(data) {
 }
 
 export function convertToValidPrecisionNumber(precision, scale, data) {
-   if (isEmptyNullUndefined(data)) {
+   if (isNotEmptyNullUndefined(data)) {
       let splittedDecimal = data.split(stringManipulationCheck.DOT_OPERATOR);
       let beforeDecimalCount = _.head(splittedDecimal)?.length;
       let afterDecimalCount = _.last(splittedDecimal)?.length;
@@ -124,7 +130,7 @@ export function convertToValidPrecisionNumber(precision, scale, data) {
          let decimalDigits = _.last(decimalCopySplit);
          let realDigits = _.head(decimalCopySplit);
 
-         if (isEmptyNullUndefined(decimalDigits)) {
+         if (isNotEmptyNullUndefined(decimalDigits)) {
             decimalCopy = removeSpecialCharacterExceptDot(decimalDigits);
             data = `${realDigits}.${decimalCopy}`;
          }
@@ -155,7 +161,7 @@ export function autoCompleteOff(event) {
 }
 
 export function isArrayContainsObject(data) {
-   return (isEmptyNullUndefined(data) &&
+   return (isNotEmptyNullUndefined(data) &&
       data.length > fieldMappingSheetConfig.fieldMapLengthCheck
       && typeof (_.head(data)) === dataTypeCheck.OBJECT);
 }
@@ -171,7 +177,7 @@ export function removeSpecialCharacterExceptDot(value) {
 }
 
 export function handleCloseStateCountry(propDetails) {
-   return isEmptyNullUndefined(propDetails) ? propDetails : stringManipulationCheck.EMPTY_STRING;
+   return isNotEmptyNullUndefined(propDetails) ? propDetails : stringManipulationCheck.EMPTY_STRING;
 }
 
 export function removeMultipleSpace(data) {
@@ -202,7 +208,7 @@ export function encryptData(data, key) {
 
 export function decryptData(key) {
    let localStorageData = (isNotNull(sessionStorage.getItem(key))) ? sessionStorage.getItem(key) : localStorage.getItem(key)
-   if (!isEmptyNullUndefined(localStorageData)) {
+   if (!isNotEmptyNullUndefined(localStorageData)) {
       return null;
    }
    let _cipherText = CryptoAES.decrypt(localStorageData.toString(), key);
@@ -210,11 +216,11 @@ export function decryptData(key) {
 }
 
 export function isCookieValid() {
-   if (isEmptyNullUndefined(document.cookie)) {
+   if (isNotEmptyNullUndefined(document.cookie)) {
       let token = document.cookie.split(stringManipulationCheck.ASSIGNTO_OPERATOR);
       const jwtToken = JSON.parse(atob(token[arrayConstants.tokenData]?.split(stringManipulationCheck.DOT_OPERATOR)[arrayConstants.tokenData]));
       const expires = jwtToken.exp;
-      if (isEmptyNullUndefined(expires) && Date.now() <= expires * tokenValidity.convertToMilliSeconds) {
+      if (isNotEmptyNullUndefined(expires) && Date.now() <= expires * tokenValidity.convertToMilliSeconds) {
          return true;
       }
       sessionStorage.clear();

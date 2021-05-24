@@ -3,7 +3,7 @@ import { dataImportReducerConstant } from "../reducerConstant";
 import { errorMessage, statusCode, displayText, apiRouter, formDataInput, stringManipulationCheck, loaderMessages } from "../../constant";
 import { showSuccessSnackbar, showFailureSnackbar } from "./snackbarAction";
 import { fieldMappingSheetConfig, fieldCheck, qcDashboardCheck } from "../../dataimportconstants";
-import { isStatusCodeValid, isEmptyNullUndefined, isNullUndefined, filterExcelResponse } from "../../components/shared/helper";
+import { isStatusCodeValid, isNotEmptyNullUndefined, isNullUndefined, filterExcelResponse } from "../../components/shared/helper";
 import _ from 'lodash';
 
 export const GetVendorsList = (url) => {
@@ -463,10 +463,10 @@ export const clearVendorAndOperationalArea = (val) => {
 
 export const FetchExcelData = (url, data, lazyLoad = false) => {
    return async (dispatch) => {
-      if (isEmptyNullUndefined(url) && isEmptyNullUndefined(data)) {
+      if (isNotEmptyNullUndefined(url) && isNotEmptyNullUndefined(data)) {
          return serviceCall.getExcelPreview(url, data)
             .then((result) => {
-               if (!isStatusCodeValid(result, statusCode.CODE_200) || !isEmptyNullUndefined(result.data)) {
+               if (!isStatusCodeValid(result, statusCode.CODE_200) || !isNotEmptyNullUndefined(result.data)) {
                   dispatch(FetchExcelDataFailure());
                   dispatch(showFailureSnackbar(errorMessage.UNABLE_TO_PARSE_EXCEL));
                   return;
@@ -492,7 +492,7 @@ export const UpdateVendorMatchingDetails = (url, data) => {
    return (dispatch) => {
       return serviceCall.postData(url, data)
          .then((result) => {
-            if (!isStatusCodeValid(result, statusCode.CODE_200) || !isEmptyNullUndefined(result.data)) {
+            if (!isStatusCodeValid(result, statusCode.CODE_200) || !isNotEmptyNullUndefined(result.data)) {
                dispatch(showFailureSnackbar(errorMessage.UNABLE_TO_UPDATE_MATCHING_DETAILS));
             }
             dispatch({ type: dataImportReducerConstant.FETCH_UPDATED_MATCHING_DETAILS, value: _.head(result.data) });
@@ -593,7 +593,7 @@ export const FetchILISummaryData = (url, data) => {
       dispatch(DataSaveLoaderOverlay(true, displayText.LOADING_ILI_SUMMARY_DASHBOARD));
       return serviceCall.postData(url, data)
          .then((result) => {
-            if (!isStatusCodeValid(result, statusCode.CODE_200) || !isEmptyNullUndefined(result.data)) {
+            if (!isStatusCodeValid(result, statusCode.CODE_200) || !isNotEmptyNullUndefined(result.data)) {
                dispatch(showFailureSnackbar(errorMessage.UNABLE_TO_FETCH_SUMMARY_DETAILS));
             }
             dispatch({ type: dataImportReducerConstant.FETCH_ILI_SUMMARY_DASHBOARD, value: result.data });

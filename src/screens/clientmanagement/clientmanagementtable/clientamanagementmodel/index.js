@@ -14,7 +14,7 @@ import CommonStyles from "../../../../scss/commonStyles";
 import { client, gridWidth } from '../../../../gridconstants';
 import { modalStylingAttributes } from '../../../../modalconstants';
 import {
-   isEmpty, isNotEmpty, isEmptyNullUndefined, isEmailFormatCorrect, leftTrim, autoCompleteOff, removeSpecialCharacter,
+   isEmpty, isNotEmpty, isNotEmptyNullUndefined, isEmailFormatCorrect, leftTrim, autoCompleteOff, removeSpecialCharacter,
    isNullUndefined, handleCloseStateCountry, removeSpecialCharacterExceptDot
 } from "../../../../components/shared/helper";
 
@@ -228,14 +228,14 @@ export default function AddClientModal(props) {
    };
 
    const handleSelectCountry = (event, selectedCountry) => {
-      if (isEmptyNullUndefined(selectedCountry)) {
+      if (isNotEmptyNullUndefined(selectedCountry)) {
          let url = `${apiRouter.STATE}/${apiRouter.GET_STATEBY_COUNTRY}?${displayText.COUNTRY_GUID}=${selectedCountry?.countryGuid}`;
          dispatch(actionCreator.FetchStateList(url));
       }
    };
 
    const getStateListbyCountry = () => {
-      if (isEmptyNullUndefined(country)) {
+      if (isNotEmptyNullUndefined(country)) {
          let countryResult = _.find(countryList, (Country) => {
             return Country.name === country;
          });

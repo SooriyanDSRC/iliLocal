@@ -29,7 +29,7 @@ import { fieldMappingSheetConfig, fieldCheck } from "../../dataimportconstants";
 import "react-data-grid/dist/react-data-grid.css";
 import Fieldmapping from "./fieldmapping";
 import {
-   isEmpty, isEmptyNullUndefined, getSteps, convertToValidPrecisionNumber,
+   isEmpty, isNotEmptyNullUndefined, getSteps, convertToValidPrecisionNumber,
    removeSpecialCharacter, isUndefined, deleteFile, fetchUnitConversion,
    decryptData, removeCharacter, isNotNull, encryptData
 } from "../../components/shared/helper";
@@ -288,7 +288,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const chunkSize = 1048576 * 3; //its 3MB, increase the number measure in mb
-const apiUrl = process.env.REACT_APP_API_URL ?? '';
 
 export default function DataImport() {
    const classes = useStyles();
@@ -322,7 +321,7 @@ export default function DataImport() {
    const [OD, setOD] = useState(false);
    const childRef = useRef();
    const versionChildRef = useRef();
-   const [ILIDataSummary, setILIDataSummary] = useState(stringManipulationCheck.EMPTY_STRING);
+   const [iliDataSummary, setIliDataSummary] = useState(stringManipulationCheck.EMPTY_STRING);
    const [fieldMappingData, setFieldMappingData] = useState([]);
    const [isExcelReady, setIsExcelReady] = useState(false);
    const [fieldMappingFieldsData, setFieldMappingFieldsData] = useState([]);
@@ -353,12 +352,12 @@ export default function DataImport() {
    const [openDialog, setOpenDialog] = useState(false);
    const [version, setVersion] = useState([]);
    const [selectedVersions, setSelectedVersions] = useState([]);
-   const [mopRadioValue, setMOPRadioValue] = useState(fieldMappingSheetConfig.defaultQcInputRadioValue);
-   const [mysRadioValue, setMYSRadioValue] = useState(fieldMappingSheetConfig.defaultQcInputRadioValue);
-   const [odRadioValue, setODRadioValue] = useState(fieldMappingSheetConfig.defaultQcInputRadioValue);
-   const [showMOPRadio, setShowMOPRadio] = useState(false);
-   const [showMYSRadio, setShowMYSRadio] = useState(false);
-   const [showODRadio, setShowODRadio] = useState(false);
+   const [mopOptionValue, setMOPOptionValue] = useState(fieldMappingSheetConfig.defaultQcInputRadioValue);
+   const [mysOptionValue, setMYSOptionValue] = useState(fieldMappingSheetConfig.defaultQcInputRadioValue);
+   const [odOptionValue, setODOptionValue] = useState(fieldMappingSheetConfig.defaultQcInputRadioValue);
+   const [showMOPOption, setShowMOPOption] = useState(false);
+   const [showMYSOption, setShowMYSOption] = useState(false);
+   const [showODOption, setShowODOption] = useState(false);
    const [checkMOP, setCheckMOP] = useState(false);
    const [checkMYS, setCheckMYS] = useState(false);
    const [checkOD, setcheckOD] = useState(false);
@@ -402,17 +401,16 @@ export default function DataImport() {
       setMOP(false);
       setSMYS(false);
       setOD(false);
-      setShowMOPRadio(false);
-      setShowMYSRadio(false);
-      setShowODRadio(false);
+      setShowMOPOption(false);
+      setShowMYSOption(false);
+      setShowODOption(false);
       setcheckOD(false);
-      setShowODRadio(false);
-      setShowMOPRadio(false);
+      setShowODOption(false);
       setCheckMOP(false);
-      setShowMYSRadio(false);
+      setShowMYSOption(false);
       setCheckMYS(false);
-      setMOPRadioValue(fieldMappingSheetConfig.defaultQcInputRadioValue);
-      setMYSRadioValue(fieldMappingSheetConfig.defaultQcInputRadioValue);
+      setMOPOptionValue(fieldMappingSheetConfig.defaultQcInputRadioValue);
+      setMYSOptionValue(fieldMappingSheetConfig.defaultQcInputRadioValue);
    };
 
    const checkFeatureTypes = (defaultValue = null) => {
@@ -427,49 +425,48 @@ export default function DataImport() {
    const checkDashboardFields = () => {
       if (fieldMappingData) {
          fieldMappingInitialData();
-         setODRadioValue(fieldMappingSheetConfig.defaultQcInputRadioValue);
+         setODOptionValue(fieldMappingSheetConfig.defaultQcInputRadioValue);
          let fieldMappingFiltered = fieldMappingDataFilter(fieldMappingData);
          if (_.find(fieldMappingFiltered, (field) => { return field.tableColumn === `${displayText.ILI_DATA_TABLE}.${displayText.MAOP_COLUMN}` })) {
             setMOP(true);
-            setMOPRadioValue(fieldMappingSheetConfig.fieldMapRadioValue);
-            setShowMOPRadio(true);
+            setMOPOptionValue(fieldMappingSheetConfig.fieldMapRadioValue);
+            setShowMOPOption(true);
             setCheckMOP(true);
          }
          if (_.find(fieldMappingFiltered, (field) => { return field.tableColumn === `${displayText.ILI_DATA_TABLE}.${displayText.SMYS_COLUMN}` })) {
             setSMYS(true);
-            setShowMYSRadio(true);
+            setShowMYSOption(true);
             setCheckMYS(true);
-            setMYSRadioValue(fieldMappingSheetConfig.fieldMapRadioValue);
+            setMYSOptionValue(fieldMappingSheetConfig.fieldMapRadioValue);
          }
          if (_.find(fieldMappingFiltered, (field) => { return field.tableColumn === `${displayText.ILI_DATA_TABLE}.${displayText.OD_COLUMN}` })) {
             setOD(true);
-            setODRadioValue(fieldMappingSheetConfig.fieldMapRadioValue);
+            setODOptionValue(fieldMappingSheetConfig.fieldMapRadioValue);
             setcheckOD(true);
-            setShowODRadio(true);
+            setShowODOption(true);
          }
-         if (_.find(fieldMappingFiltered, (field) => { return field.tableColumn === `${displayText.ILI_DATA_TABLE}.${displayText.FEATURE_TYPE_COLUMN}` })) {
-            setFeatureTypeRow(true);
-            setFeatureTypeDropDown(true);
-            checkFeatureTypes();
-         } else {
-            setFeatureTypeRow(false);
-            setFeatureTypeDropDown(false);
-            checkFeatureTypes(displayText.DEFAULT_PARENTID)
-         }
+         let isFeatureTypeMapped = isNotEmptyNullUndefined(
+            _.find(fieldMappingFiltered, (field) => {
+               return field.tableColumn === `${displayText.ILI_DATA_TABLE}.${displayText.FEATURE_TYPE_COLUMN}`
+            })
+         );
+            setFeatureTypeRow(isFeatureTypeMapped);
+            setFeatureTypeDropDown(isFeatureTypeMapped);
+            isFeatureTypeMapped ? checkFeatureTypes() : checkFeatureTypes(displayText.DEFAULT_PARENTID);
          let maopColumnField = _.find(fieldMappingFiltered, { tableColumn: `${displayText.ILI_DATA_TABLE}.${displayText.MAOP_COLUMN}` });
          let smysColumnField = _.find(fieldMappingFiltered, { tableColumn: `${displayText.ILI_DATA_TABLE}.${displayText.SMYS_COLUMN}` });
          let odColumnField = _.find(fieldMappingFiltered, { tableColumn: `${displayText.ILI_DATA_TABLE}.${displayText.OD_COLUMN}` });
-         if (isEmptyNullUndefined(maopColumnField?.unitType)) {
+         if (isNotEmptyNullUndefined(maopColumnField?.unitType)) {
             setMaopUnit(maopColumnField?.unitType);
             setMaopSubUnit(maopColumnField?.excelUnitName);
             setMaopAbbr(maopColumnField?.excelUnit);
          }
-         if (isEmptyNullUndefined(smysColumnField?.unitType)) {
+         if (isNotEmptyNullUndefined(smysColumnField?.unitType)) {
             setSmysUnit(smysColumnField?.unitType);
             setSmysSubUnit(smysColumnField?.excelUnitName);
             setSmysAbbr(smysColumnField?.excelUnit);
          }
-         if (isEmptyNullUndefined(odColumnField?.unitType)) {
+         if (isNotEmptyNullUndefined(odColumnField?.unitType)) {
             setOdUnit(odColumnField?.unitType);
             setOdSubUnit(odColumnField?.excelUnitName);
             setOdAbbr(odColumnField?.excelUnit);
@@ -540,21 +537,26 @@ export default function DataImport() {
          return currentObject.tableColumn !== displayText.DEFAULT_PARENTID && currentObject.tableColumn !== undefined;
       });
       let fieldMapValidate = fieldMapParentIdCheck.map((fieldData) => {
-         let occurrence = filteredFieldMappingData.filter((field) => {
-            return field.sheetIndex === fieldData.sheetIndex && field.tableColumn === fieldData.tableColumn && field.tableColumn !== displayText.FIELD_MAPPING_IGNORED && field.tableColumn !== null && field.tableColumn !== stringManipulationCheck.EMPTY_STRING;
+         let occurance = filteredFieldMappingData.filter((field) => {
+            const isSheetIndexEqual = field.sheetIndex === fieldData.sheetIndex;
+            const isTableColumnEqual = field.tableColumn === fieldData.tableColumn;
+            const isNotIgnored = field.tableColumn !== displayText.FIELD_MAPPING_IGNORED;
+            const isTableColumnNotNull = field.tableColumn !== null;
+            const isTableColumnEmpty = field.tableColumn !== stringManipulationCheck.EMPTY_STRING
+            return isSheetIndexEqual && isTableColumnEqual && isNotIgnored && isTableColumnNotNull && isTableColumnEmpty;
          });
-         let duplicateBoolean = occurrence.length > fieldMappingSheetConfig.occurrenceLengthCheck;
+         let duplicateBoolean = occurance.length > fieldMappingSheetConfig.occurrenceLengthCheck;
          return {
             fieldName: fieldData.excelColumn,
-            count: occurrence.length,
+            count: occurance.length,
             duplicate: duplicateBoolean,
-            occurrence: occurrence
+            occurance: occurance
          };
       });
       let fieldMapNullCheck = _.find(fieldMapParentIdCheck, { tableColumn: undefined });
       let fieldMapDuplicateCheck = _.find(fieldMapValidate, { duplicate: true });
       if (fieldMapDuplicateCheck) {
-         let duplicateFields = _.find(fieldMapValidate, { duplicate: true }).occurrence;
+         let duplicateFields = _.find(fieldMapValidate, { duplicate: true }).occurance;
          dispatch(snackbarActionCreator.showFailureSnackbar(duplicateFields.map(e => e.excelColumn).join(fieldCheck.joinColumnText) + errorMessage.HAS_DUPLICATE_COLUMN));
       }
       else if (fieldMapNullCheck) {
@@ -572,8 +574,8 @@ export default function DataImport() {
       setFieldMappingFieldsData(overallRelation);
    };
 
-   const handleBack = (step, forceBack) => {
-      if (forceBack) {
+   const handleBack = (step, isForceBack) => {
+      if (isForceBack) {
          setActiveStep(step);
          dispatch(actionCreator.ClearFieldMappingErrorValidation());
          return;
@@ -651,9 +653,9 @@ export default function DataImport() {
 
    const handleSaveDashboardFields = () => {
       if (isShowError) { return; }
-      let mopFlag = !MOP && (!isEmptyNullUndefined(maximumOperatingPressure) || !isNegativeNumber(maximumOperatingPressure));
-      let smysFlag = !SMYS && (!isEmptyNullUndefined(maximumYieldStrength) || !isNegativeNumber(maximumYieldStrength));
-      let odFlag = !OD && (!isEmptyNullUndefined(outerDiameter) || !isNegativeNumber(outerDiameter));
+      let mopFlag = !MOP && (!isNotEmptyNullUndefined(maximumOperatingPressure) || !isNegativeNumber(maximumOperatingPressure));
+      let smysFlag = !SMYS && (!isNotEmptyNullUndefined(maximumYieldStrength) || !isNegativeNumber(maximumYieldStrength));
+      let odFlag = !OD && (!isNotEmptyNullUndefined(outerDiameter) || !isNegativeNumber(outerDiameter));
       if (mopFlag || smysFlag || odFlag) {
          return setIsShowError(true);
       }
@@ -671,10 +673,10 @@ export default function DataImport() {
       getAllSubunit();
       setIsShowError(false);
       GetMasterSummaryList();
-      let UnloadFileName = fileGuid;
+      const unloadFileName = fileGuid;
       return () => {
          setIsShowError(false);
-         deleteFile(UnloadFileName);
+         deleteFile(unloadFileName);
          dispatch(dataImportActionCreator.ClearFieldMappingErrorValidation())
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -689,7 +691,7 @@ export default function DataImport() {
       window.addEventListener('beforeunload', function (event) {
          event.preventDefault();
          let userDetail = JSON.parse(decryptData(sessionStorageKey.USER_DETAILS));
-         if (isNotNull(userDetail) && isEmptyNullUndefined(fileGuid)) {
+         if (isNotNull(userDetail) && isNotEmptyNullUndefined(fileGuid)) {
             let url = `${apiRouter.FILE_UPLOAD}/${apiRouter.UPLOAD_CANCEL}?${apiRouter.DELETE_ORIGINAL_FILE}=${false}&${apiRouter.FILE_NAME}=${fileGuid}`;
             serviceCall.deleteFileCall(url);
             setFileGuid(stringManipulationCheck.EMPTY_STRING);
@@ -761,125 +763,123 @@ export default function DataImport() {
    };
 
    const handleChange = (type, e) => {
-      if (!isEmptyNullUndefined(e.target.value)) {
+      if (!isNotEmptyNullUndefined(e.target.value)) {
          return stringManipulationCheck.EMPTY_STRING;
       }
       switch (type) {
          case displayText.MAX_OPERATING_PRESSURE:
             if (e.target.value === displayText.INITIAL_VALUE) {
                setMOP(true);
-               return setMOPRadioValue(e.target.value);
+               return setMOPOptionValue(e.target.value);
             }
             setMOP(false);
-            setShowMOPRadio(checkMOP);
-            return setMOPRadioValue(e.target.value)
+            setShowMOPOption(checkMOP);
+            return setMOPOptionValue(e.target.value)
          case displayText.MIN_YIELD_STRENGTH:
             if (e.target.value === displayText.INITIAL_VALUE) {
                setSMYS(true);
-               return setMYSRadioValue(e.target.value);
+               return setMYSOptionValue(e.target.value);
             }
             setSMYS(false);
-            setShowMYSRadio(checkMYS);
-            return setMYSRadioValue(e.target.value)
+            setShowMYSOption(checkMYS);
+            return setMYSOptionValue(e.target.value)
          case displayText.OUTER_DIAMETER:
             if (e.target.value === displayText.INITIAL_VALUE) {
                setOD(true);
-               return setODRadioValue(e.target.value);
+               return setODOptionValue(e.target.value);
             }
             setOD(false);
-            setShowODRadio(checkOD);
-            return setODRadioValue(e.target.value);
+            setShowODOption(checkOD);
+            return setODOptionValue(e.target.value);
          default:
             return stringManipulationCheck.EMPTY_STRING;
       }
    }
 
    const handleInputChange = async (type, e) => {
+      let textBoxValue = e.target.value;
       switch (type) {
          case displayText.MAX_OPERATING_PRESSURE:
-            if (isEmptyNullUndefined(e.target.value)) {
-               let textBoxValue = e.target.value;
-               let convertedValue = await renderSpecificUnit(displayText.MAOP_COLUMN, maopSubUnit, textBoxValue, maopAbbr, maopUnit)
-               let maxPressure = convertToValidPrecisionNumber(fieldMappingSheetConfig.pressurePrecision, fieldMappingSheetConfig.pressureScale, convertedValue.toString());
-               let acceptedValue = true;
-               if (maxPressure[1] && maxPressure[0].charAt(initialCharacterIndex) !== stringManipulationCheck.DECREMENT_OPERATOR) {
-                  setIsMaxPressureError(false);
-                  setIsMaxPressureNegative(false)
-                  acceptedValue = false;
-               }
-               else if (maxPressure[0].charAt(initialCharacterIndex) === stringManipulationCheck.DECREMENT_OPERATOR) {
-                  setIsMaxPressureNegative(true)
-                  acceptedValue = true;
-               }
-               else {
-                  setIsMaxPressureError(true);
-                  acceptedValue = true;
-               }
-               setMaximumOperatingPressureConvertedValue(maxPressure[0].toString());
-               setIsShowError(acceptedValue || isMinimumYieldStrengthNegative || isOuterDiameterError || isOuterDiameterNegative)
-               return setMaximumOperatingPressure(maxPressure[0].toString());
-            }
-            else {
+            if (!isNotEmptyNullUndefined(e.target.value)) {
                setMaximumOperatingPressureConvertedValue(stringManipulationCheck.EMPTY_STRING);
-               setIsShowError(true);
                return setMaximumOperatingPressure(stringManipulationCheck.EMPTY_STRING);
             }
+            let mopConvertedValue = await renderSpecificUnit(displayText.MAOP_COLUMN, maopSubUnit, textBoxValue, maopAbbr, maopUnit)
+            let maxPressure = convertToValidPrecisionNumber(fieldMappingSheetConfig.pressurePrecision, fieldMappingSheetConfig.pressureScale, mopConvertedValue.toString());
+            let isMaxPressureValid = _.last(maxPressure);
+            let maxPressureValue = _.head(maxPressure);
+
+            if (isMaxPressureValid && maxPressureValue.charAt(initialCharacterIndex) !== stringManipulationCheck.DECREMENT_OPERATOR) {
+               setIsShowError(false);
+               setIsMaxPressureError(false);
+               setIsMaxPressureNegative(false)
+               setMaximumOperatingPressureConvertedValue(maxPressureValue.toString());
+               return setMaximumOperatingPressure(maxPressureValue.toString());
+            }
+            if (maxPressureValue.charAt(initialCharacterIndex) === stringManipulationCheck.DECREMENT_OPERATOR) {
+               setIsShowError(true);
+               setIsMaxPressureNegative(true)
+               setMaximumOperatingPressureConvertedValue(maxPressureValue.toString());
+               return setMaximumOperatingPressure(maxPressureValue.toString());
+            }
+            setIsShowError(true);
+            setIsMaxPressureError(true);
+            setMaximumOperatingPressureConvertedValue(maxPressureValue.toString());
+            return setMaximumOperatingPressure(maxPressureValue.toString());
          case displayText.MIN_YIELD_STRENGTH:
-            let textBoxValue = e.target.value;
-            let convertedValue = await renderSpecificUnit(displayText.SMYS_COLUMN, smysSubUnit, textBoxValue, smysAbbr, smysUnit)
-            let acceptedValue = true;
-            if (convertedValue.length > fieldMappingSheetConfig.iliDataResolutionLimit) {
-               acceptedValue = true;
+            let mysConvertedValue = await renderSpecificUnit(displayText.SMYS_COLUMN, smysSubUnit, textBoxValue, smysAbbr, smysUnit)
+
+            if (mysConvertedValue.length > fieldMappingSheetConfig.iliDataResolutionLimit) {
+               return setIsShowError(true);
             }
-            else if (textBoxValue.charAt(initialCharacterIndex) === stringManipulationCheck.DECREMENT_OPERATOR) {
+            if (textBoxValue.charAt(initialCharacterIndex) === stringManipulationCheck.DECREMENT_OPERATOR) {
+               setIsShowError(true);
                setMaximumYieldStrength(removeCharacter(removeSpecialCharacter(textBoxValue)))
-               setIsMinimumYieldStrengthNegative(true);
-               acceptedValue = true;
-               return setIsShowError(isMaxPressureError || isMaxPressureNegative || acceptedValue || isOuterDiameterError || isOuterDiameterNegative)
+               return setIsMinimumYieldStrengthNegative(true);
             }
-            else {
-               setIsMinimumYieldStrengthNegative(false);
-               acceptedValue = false;
-            }
-            setSmysConvertedValue(convertedValue);
-            setIsShowError(isMaxPressureError || isMaxPressureNegative || acceptedValue || isOuterDiameterError || isOuterDiameterNegative)
+            setIsShowError(false);
+            setIsMinimumYieldStrengthNegative(false);
+            setSmysConvertedValue(mysConvertedValue);
             return setMaximumYieldStrength(removeCharacter(removeSpecialCharacter(textBoxValue)));
          case displayText.OUTER_DIAMETER:
-            if (isEmptyNullUndefined(e.target.value)) {
-               let textBoxValue = e.target.value;
-               let convertedValue = await renderSpecificUnit(displayText.OD_COLUMN, odSubUnit, textBoxValue, odAbbr, odUnit)
-               let outerDiameterValue = convertToValidPrecisionNumber(fieldMappingSheetConfig.diameterPrecision, fieldMappingSheetConfig.diameterScale, convertedValue.toString());
-               let acceptedValue = true;
-
-               if (outerDiameterValue[1] && outerDiameterValue[0].charAt(initialCharacterIndex) !== stringManipulationCheck.DECREMENT_OPERATOR) {
-                  setIsOuterDiameterError(false);
-                  setIsOuterDiameterNegative(false);
-                  acceptedValue = false;
-               }
-               else if (outerDiameterValue[0].charAt(initialCharacterIndex) === stringManipulationCheck.DECREMENT_OPERATOR) {
-                  setIsOuterDiameterNegative(true);
-                  acceptedValue = true;
-               }
-               else {
-                  setIsOuterDiameterError(true);
-                  acceptedValue = true;
-               }
-               setIsShowError(isMaxPressureError || isMaxPressureNegative || isMinimumYieldStrengthNegative || acceptedValue)
-               setOdConvertedValue(outerDiameterValue[0].toString());
-               return setOuterDiameter(outerDiameterValue[0].toString());
-            } else {
+            if (!isNotEmptyNullUndefined(e.target.value)) {
                setOdConvertedValue(stringManipulationCheck.EMPTY_STRING);
-               setIsShowError(true);
                return setOuterDiameter(stringManipulationCheck.EMPTY_STRING);
             }
+
+            let odUnitConvertedValue = await renderSpecificUnit(displayText.OD_COLUMN, odSubUnit, textBoxValue, odAbbr, odUnit)
+            let outerDiameterValue = convertToValidPrecisionNumber(
+               fieldMappingSheetConfig.diameterPrecision,
+               fieldMappingSheetConfig.diameterScale,
+               odUnitConvertedValue.toString()
+            );
+            let isOuterDiameterValid = _.last(outerDiameterValue);
+            let outerDiameterParsedValue = _.head(outerDiameterValue);
+
+            if (isOuterDiameterValid && outerDiameterParsedValue.charAt(initialCharacterIndex) !== stringManipulationCheck.DECREMENT_OPERATOR) {
+               setIsShowError(false);
+               setIsOuterDiameterError(false);
+               setIsOuterDiameterNegative(false);
+               setOdConvertedValue(outerDiameterParsedValue.toString());
+               return setOuterDiameter(outerDiameterParsedValue.toString());
+            }
+            if (outerDiameterParsedValue.charAt(initialCharacterIndex) === stringManipulationCheck.DECREMENT_OPERATOR) {
+               setIsShowError(true);
+               setIsOuterDiameterNegative(true);
+               setOdConvertedValue(outerDiameterParsedValue.toString());
+               return setOuterDiameter(outerDiameterParsedValue.toString());
+            }
+            setIsShowError(true);
+            setIsOuterDiameterError(true)
+            setOdConvertedValue(outerDiameterParsedValue.toString());
+            return setOuterDiameter(outerDiameterParsedValue.toString());
          default:
             return stringManipulationCheck.EMPTY_STRING;
       }
    };
 
-
    const summaryDataCallback = (summaryData) => {
-      setILIDataSummary(summaryData);
+      setIliDataSummary(summaryData);
       let columns = [];
       selectedIliSummarySheetData && selectedIliSummarySheetData.forEach((currentSheet, sheetIndex) => {
          currentSheet && currentSheet.dataColumns && currentSheet.dataColumns.forEach((sheetValue) => {
@@ -888,7 +888,7 @@ export default function DataImport() {
       });
       let formData = new FormData();
       let jsonData = {};
-      jsonData[displayText.SELECTED_VENDOR_NAME] = isEmptyNullUndefined(summaryList) ? _.find(summaryList.iliToolVendorClNames, { iliToolVendorClGuid: summaryData.toolVendorCl }).name : null;
+      jsonData[displayText.SELECTED_VENDOR_NAME] = isNotEmptyNullUndefined(summaryList) ? _.find(summaryList.iliToolVendorClNames, { iliToolVendorClGuid: summaryData.toolVendorCl }).name : null;
       jsonData[displayText.VENDOR_ID] = summaryData.toolVendorCl;
       jsonData[displayText.EXCEL_COLUMNS] = columns;
       formData.append(formDataInput.fieldInput, JSON.stringify(jsonData));
@@ -933,28 +933,28 @@ export default function DataImport() {
 
    const saveILIData = () => {
       setDashboardFieldDialogOpen(false);
-      let SummaryList = [];
-      let FeatureTypeData = featureTypeDropDown && featureTypeRow && selectedFeatureType !== displayText.DEFAULT_PARENTID ? selectedFeatureType : null
+      let summaryList = [];
+      let featureTypeData = featureTypeDropDown && featureTypeRow && selectedFeatureType !== displayText.DEFAULT_PARENTID ? selectedFeatureType : null
       let fieldElements = {
          IliFeed: false,
          OutsideDiameter: null,
          B31gMaop: null,
          Smys: null,
-         SelectedOD: odRadioValue,
-         SelectedB31gMaop: mopRadioValue,
-         SelectedSmys: mysRadioValue,
-         SelectedFeatureType: FeatureTypeData
+         SelectedOD: odOptionValue,
+         SelectedB31gMaop: mopOptionValue,
+         SelectedSmys: mysOptionValue,
+         SelectedFeatureType: featureTypeData
       }
-      if (isEmptyNullUndefined(maximumOperatingPressure) || isEmptyNullUndefined(maximumYieldStrength) || isEmptyNullUndefined(outerDiameter)) {
+      if (isNotEmptyNullUndefined(maximumOperatingPressure) || isNotEmptyNullUndefined(maximumYieldStrength) || isNotEmptyNullUndefined(outerDiameter)) {
          fieldElements.IliFeed = true;
          fieldElements.OutsideDiameter = odConvertedValue ?? outerDiameter;
          fieldElements.B31gMaop = maximumOperatingPressureConvertedValue ?? maximumOperatingPressure;
          fieldElements.Smys = smysConvertedValue ?? maximumYieldStrength;
-         fieldElements.SelectedOD = odRadioValue;
-         fieldElements.SelectedB31gMaop = mopRadioValue;
-         fieldElements.SelectedSmys = mysRadioValue;
+         fieldElements.SelectedOD = odOptionValue;
+         fieldElements.SelectedB31gMaop = mopOptionValue;
+         fieldElements.SelectedSmys = mysOptionValue;
       }
-      SummaryList.push(ILIDataSummary);
+      summaryList.push(iliDataSummary);
       let matchedColumnsLength = matchingDetails?.MatchedColumns?.length;
       let fieldMappingFiltered = fieldMappingDataFilter(fieldMappingData);
       let fieldMapCheckLength = fieldMappingFiltered.length;
@@ -973,10 +973,10 @@ export default function DataImport() {
       let saveTemplateJson = {
          fileName: fileGuid,
          iliFieldDetails: fieldMappingFiltered,
-         iliInspectionDetails: SummaryList,
+         iliInspectionDetails: summaryList,
          ILIParameterDetails: fieldElements,
          TemplateMasterGuid: _.head(matchingDetails?.TemplateMasterGuid),
-         IsVersionOverWrite: isEmptyNullUndefined(overrideVersion?.iliInspectionGuid),
+         IsVersionOverWrite: isNotEmptyNullUndefined(overrideVersion?.iliInspectionGuid),
          IsTemplateChange: templateChanged,
          SavedInspectionGuid: overrideVersion?.iliInspectionGuid
       };
@@ -1026,7 +1026,8 @@ export default function DataImport() {
                )
             );
             e.target.value = null;
-         } else {
+            return (stringManipulationCheck.EMPTY_STRING);
+         } 
             setConfirmCancel(false);
             resetChunkProperties();
             const _file = targetFile;
@@ -1034,21 +1035,20 @@ export default function DataImport() {
                fileObj: targetFile,
                fileName: targetFile.name,
             });
-            setFileSize(_file.size);
-            setFileName(_file.name);
-            const _totalCount =
-               _file.size % chunkSize === fieldMappingSheetConfig.defaultFileSize
-                  ? _file.size / chunkSize
-                  : Math.floor(_file.size / chunkSize) + fieldMappingSheetConfig.counterInitialValue; // Total count of chunks will have been upload to finish the file
-            setChunkCount(_totalCount);
-            setFileToBeUpload(_file);
+            setFileSize(targetFile.size);
+            setFileName(targetFile.name);
+            const totalCount =
+            targetFile.size % chunkSize === fieldMappingSheetConfig.defaultFileSize
+                  ? targetFile.size / chunkSize
+                  : Math.floor(targetFile.size / chunkSize) + fieldMappingSheetConfig.counterInitialValue; // Total count of chunks will have been upload to finish the file
+            setChunkCount(totalCount);
+            setFileToBeUpload(targetFile);
             e.target.value = null;
-            const _fileID = uuidv4() + stringManipulationCheck.DOT_OPERATOR + _file.name.split(stringManipulationCheck.DOT_OPERATOR).pop();
-            setFileGuid(_fileID);
-            dispatch(dataImportActionCreator.SetFileName(_fileID));
-            encryptData(_fileID, displayText.FILE_NAME);
-         }
-         setILIDataSummary(stringManipulationCheck.EMPTY_STRING);
+            const fileId = uuidv4() + stringManipulationCheck.DOT_OPERATOR + _file.name.split(stringManipulationCheck.DOT_OPERATOR).pop();
+            setFileGuid(fileId);
+            dispatch(dataImportActionCreator.SetFileName(fileId));
+            encryptData(fileId, displayText.FILE_NAME);
+         setIliDataSummary(stringManipulationCheck.EMPTY_STRING);
       }
    };
 
@@ -1206,7 +1206,7 @@ export default function DataImport() {
    };
 
    const renderErrorMessageList = (errorMessageArray) => {
-      if (isEmptyNullUndefined(errorMessageArray) && errorMessageArray.length !== fieldMappingSheetConfig.fieldMapLengthCheck) {
+      if (isNotEmptyNullUndefined(errorMessageArray) && errorMessageArray.length !== fieldMappingSheetConfig.fieldMapLengthCheck) {
          let listItem = errorMessageArray.map((errorValue) => (
             <li>
                <div className="error">
@@ -1259,12 +1259,12 @@ export default function DataImport() {
       if (subUnit === getTargetUnit.unitName) {
          return currentValue;
       }
-      if (isEmptyNullUndefined(unitValue) && isEmptyNullUndefined(subUnit)) {
+      if (isNotEmptyNullUndefined(unitValue) && isNotEmptyNullUndefined(subUnit)) {
          let targetUnitConversion = await fetchUnitConversion(currentValue, subUnit, getTargetUnit.unitName, unitType)
          let convertedUnit = targetUnitConversion?.data?.data;
          return convertedUnit;
       }
-      if (isEmptyNullUndefined(fieldMappingUnit?.excelUnitName)) {
+      if (isNotEmptyNullUndefined(fieldMappingUnit?.excelUnitName)) {
          let targetUnitConversion = await fetchUnitConversion(currentValue, fieldMappingUnit?.excelUnitName, getTargetUnit.unitName, unitType);
          let convertedUnit = targetUnitConversion?.data?.data;
          return convertedUnit;
@@ -1376,7 +1376,7 @@ export default function DataImport() {
                         container
                         spacing={dataImportGrid.DefaultSpacing}
                         className={classes.versionModel}>
-                        <Grid item xs={12}>
+                        <Grid item xs={gridWidth.MaxWidth}>
                            <FormControl
                               variant="outlined"
                               className={classes.unitsDropdown}>
@@ -1394,7 +1394,7 @@ export default function DataImport() {
                                  <MenuItem value={displayText.DEFAULT_PARENTID}>
                                     {displayText.SELECT}
                                  </MenuItem>
-                                 {isEmptyNullUndefined(unitList) && unitList?.map((unit) => (
+                                 {isNotEmptyNullUndefined(unitList) && unitList?.map((unit) => (
                                     <MenuItem key={unit} value={unit}>
                                        {unit}
                                     </MenuItem>
@@ -1402,7 +1402,7 @@ export default function DataImport() {
                               </Select>
                            </FormControl>
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid item xs={gridWidth.MaxWidth}>
                            <FormControl
                               variant="outlined"
                               className={classes.unitsDropdown}>
@@ -1416,6 +1416,7 @@ export default function DataImport() {
                                  value={selectedSubUnit}
                                  onChange={(event) => { setSelectedSubUnitData(event) }}
                                  MenuProps={{ disableScrollLock: false }}
+                                 disabled={selectedUnit === displayText.DEFAULT_PARENTID}
                                  label={displayText.SUB_UNIT_OF_MEASURE}>
                                  {renderSubUnitMenuItems()}
                               </Select>
@@ -1424,7 +1425,7 @@ export default function DataImport() {
                      </Grid>
                   </div>
                </>
-            </DialogContent >
+            </DialogContent>
             <DialogActions>
                <Button
                   fullWidth
@@ -1456,7 +1457,7 @@ export default function DataImport() {
       setCurrentSelectedUnit(columnName);
       switch (columnName) {
          case displayText.MAOP_COLUMN:
-            if (isEmptyNullUndefined(maopUnit) && isEmptyNullUndefined(maopSubUnit)) {
+            if (isNotEmptyNullUndefined(maopUnit) && isNotEmptyNullUndefined(maopSubUnit)) {
                setSelectedUnit(maopUnit);
                setSubQuantity(maopUnit);
                setSelectedSubUnit(maopSubUnit);
@@ -1466,7 +1467,7 @@ export default function DataImport() {
             renderFromFieldMapping(columnName);
             return;
          case displayText.SMYS_COLUMN:
-            if (isEmptyNullUndefined(smysUnit) && isEmptyNullUndefined(smysSubUnit)) {
+            if (isNotEmptyNullUndefined(smysUnit) && isNotEmptyNullUndefined(smysSubUnit)) {
                setSelectedUnit(smysUnit);
                setSubQuantity(smysUnit);
                setSelectedSubUnit(smysSubUnit);
@@ -1476,7 +1477,7 @@ export default function DataImport() {
             renderFromFieldMapping(columnName);
             return;
          case displayText.OD_COLUMN:
-            if (isEmptyNullUndefined(odUnit) && isEmptyNullUndefined(odSubUnit)) {
+            if (isNotEmptyNullUndefined(odUnit) && isNotEmptyNullUndefined(odSubUnit)) {
                setSelectedUnit(odUnit);
                setSubQuantity(odUnit);
                setSelectedSubUnit(odSubUnit);
@@ -1513,7 +1514,7 @@ export default function DataImport() {
                return;
          }
       }
-      if (!isEmptyNullUndefined(selectedUnit) || !isEmptyNullUndefined(selectedSubUnit)) {
+      if (!isNotEmptyNullUndefined(selectedUnit) || !isNotEmptyNullUndefined(selectedSubUnit)) {
          return dispatch(snackbarActionCreator.showFailureSnackbar(errorMessage.PLEASE_SELECT_UNIT_AND_SUB_UNIT));
       }
       switch (currentSelectedUnit) {
@@ -1528,14 +1529,14 @@ export default function DataImport() {
                   return quantityTableListItem.unitName
                }
             });
-            if (!isEmptyNullUndefined(tableUnitDetails) && isEmptyNullUndefined(getMaopTargetUnit.units) && isEmptyNullUndefined(selectedSubUnitAbbr)) {
+            if (!isNotEmptyNullUndefined(tableUnitDetails) && isNotEmptyNullUndefined(getMaopTargetUnit.units) && isNotEmptyNullUndefined(selectedSubUnitAbbr)) {
                return dispatch(snackbarActionCreator.showFailureSnackbar(`${errorMessage.UNIT_MISMATCH} [${getMaopTargetUnit.units}] ${errorMessage.UNIT_MISMATCH_TARGET} [${selectedSubUnitAbbr}]`));
             }
             openUnitOfMeasureDialog(false, null);
             setMaopUnit(selectedUnit);
             setMaopSubUnit(selectedSubUnit);
             setMaopAbbr(selectedSubUnitAbbr);
-            if (isEmptyNullUndefined(maximumOperatingPressure)) {
+            if (isNotEmptyNullUndefined(maximumOperatingPressure)) {
                let convertedValue = await renderSpecificUnit(displayText.MAOP_COLUMN, selectedSubUnit, maximumOperatingPressure, selectedSubUnitAbbr, selectedUnit)
                let maxPressure = convertToValidPrecisionNumber(fieldMappingSheetConfig.pressurePrecision, fieldMappingSheetConfig.pressureScale, convertedValue.toString());
                if (maxPressure[1] && maxPressure[0].charAt(0) === stringManipulationCheck.DECREMENT_OPERATOR) {
@@ -1565,14 +1566,18 @@ export default function DataImport() {
                   return quantitytableListItem.unitName
                }
             });
-            if (!isEmptyNullUndefined(tableSmysUnitDetails) && isEmptyNullUndefined(getMaopTargetUnit.units) && isEmptyNullUndefined(selectedSubUnitAbbr)) {
-               return dispatch(snackbarActionCreator.showFailureSnackbar(`${errorMessage.UNIT_MISMATCH} [${getSmysTargetUnit.units}] ${errorMessage.UNIT_MISMATCH_TARGET} [${selectedSubUnitAbbr}]`));
+            if (!isNotEmptyNullUndefined(tableSmysUnitDetails) && isNotEmptyNullUndefined(getMaopTargetUnit.units) && isNotEmptyNullUndefined(selectedSubUnitAbbr)) {
+               return dispatch(
+                  snackbarActionCreator.showFailureSnackbar(
+                     `${errorMessage.UNIT_MISMATCH} [${getSmysTargetUnit.units}] ${errorMessage.UNIT_MISMATCH_TARGET} [${selectedSubUnitAbbr}]`
+                  )
+               );
             }
             openUnitOfMeasureDialog(false, null);
             setSmysUnit(selectedUnit);
             setSmysSubUnit(selectedSubUnit);
             setSmysAbbr(selectedSubUnitAbbr);
-            if (isEmptyNullUndefined(maximumYieldStrength)) {
+            if (isNotEmptyNullUndefined(maximumYieldStrength)) {
                let convertedValue = await renderSpecificUnit(displayText.SMYS_COLUMN, selectedSubUnit, maximumYieldStrength, selectedSubUnitAbbr, selectedUnit)
                if (convertedValue.toString().charAt(0) === stringManipulationCheck.DECREMENT_OPERATOR) {
                   setIsShowError(true);
@@ -1596,14 +1601,14 @@ export default function DataImport() {
                   return quantitytableListItem.unitName
                }
             });
-            if (!isEmptyNullUndefined(tableOdUnitDetails) && isEmptyNullUndefined(getOdTargetUnit.units) && isEmptyNullUndefined(selectedSubUnitAbbr)) {
+            if (!isNotEmptyNullUndefined(tableOdUnitDetails) && isNotEmptyNullUndefined(getOdTargetUnit.units) && isNotEmptyNullUndefined(selectedSubUnitAbbr)) {
                return dispatch(snackbarActionCreator.showFailureSnackbar(`${errorMessage.UNIT_MISMATCH} [${getOdTargetUnit.units}] ${errorMessage.UNIT_MISMATCH_TARGET} [${selectedSubUnitAbbr}]`));
             }
             openUnitOfMeasureDialog(false, null);
             setOdUnit(selectedUnit);
             setOdSubUnit(selectedSubUnit);
             setOdAbbr(selectedSubUnitAbbr);
-            if (isEmptyNullUndefined(outerDiameter)) {
+            if (isNotEmptyNullUndefined(outerDiameter)) {
                let convertedValue = await renderSpecificUnit(displayText.OD_COLUMN, selectedSubUnit, outerDiameter, selectedSubUnitAbbr, selectedUnit)
                let outerDiameterValue = convertToValidPrecisionNumber(fieldMappingSheetConfig.diameterPrecision, fieldMappingSheetConfig.diameterScale, convertedValue.toString());
                if (outerDiameterValue[1] && outerDiameterValue[0].charAt(0) !== stringManipulationCheck.DECREMENT_OPERATOR) {
@@ -1629,7 +1634,7 @@ export default function DataImport() {
 
    const updateFieldMapping = (columnName, selectedUnitData, selectedSubUnitData, selectedSubUnitAbbrData, fieldMap) => {
       let currentFieldData = _.find(fieldMap, { tableColumn: columnName });
-      if (isEmptyNullUndefined(currentFieldData)) {
+      if (isNotEmptyNullUndefined(currentFieldData)) {
          currentFieldData[displayText.UNIT_NAME] = selectedSubUnitAbbrData;
          currentFieldData[displayText.EXCEL_UNIT_NAME] = selectedSubUnitData;
          currentFieldData[displayText.UNIT_TYPE] = selectedUnitData;
@@ -1643,7 +1648,7 @@ export default function DataImport() {
    const renderFromFieldMapping = (selectedColumn) => {
       let fieldMappingFiltered = fieldMappingDataFilter(fieldMappingData);
       let currentColumnData = _.find(fieldMappingFiltered, { tableColumn: `${displayText.ILI_DATA_TABLE}.${selectedColumn}` });
-      if (isEmptyNullUndefined(currentColumnData?.unitType)) {
+      if (isNotEmptyNullUndefined(currentColumnData?.unitType)) {
          setSelectedUnit(currentColumnData.unitType);
          setSubQuantity(currentColumnData.unitType);
          setSelectedSubUnit(currentColumnData.excelUnitName);
@@ -1657,7 +1662,7 @@ export default function DataImport() {
          fileObj: stringManipulationCheck.EMPTY_STRING,
          fileName: stringManipulationCheck.EMPTY_STRING,
       });
-      setILIDataSummary(stringManipulationCheck.EMPTY_STRING);
+      setIliDataSummary(stringManipulationCheck.EMPTY_STRING);
       setFieldMappingData([]);
       setFieldMappingFieldsData([]);
       setIsShowError(false);
@@ -1666,9 +1671,9 @@ export default function DataImport() {
       setShowVersion(false);
       setVersion([]);
       setSelectedVersions([]);
-      setMOPRadioValue(fieldMappingSheetConfig.defaultQcInputRadioValue);
-      setMYSRadioValue(fieldMappingSheetConfig.defaultQcInputRadioValue);
-      setODRadioValue(fieldMappingSheetConfig.defaultQcInputRadioValue);
+      setMOPOptionValue(fieldMappingSheetConfig.defaultQcInputRadioValue);
+      setMYSOptionValue(fieldMappingSheetConfig.defaultQcInputRadioValue);
+      setODOptionValue(fieldMappingSheetConfig.defaultQcInputRadioValue);
       setMaximumOperatingPressure(stringManipulationCheck.EMPTY_STRING);
       setMaximumYieldStrength(stringManipulationCheck.EMPTY_STRING);
       setOuterDiameter(stringManipulationCheck.EMPTY_STRING);
@@ -1764,13 +1769,13 @@ export default function DataImport() {
                               <FormControl
                                  variant="outlined"
                                  className={classes.formControl}>
-                                 <RadioGroup value={mopRadioValue} onChange={(e) => handleChange(displayText.MAX_OPERATING_PRESSURE, e)}>
+                                 <RadioGroup value={mopOptionValue} onChange={(e) => handleChange(displayText.MAX_OPERATING_PRESSURE, e)}>
                                     <FormControlLabel
                                        value={fieldMappingSheetConfig.defaultQcInputRadioValue}
                                        control={<Radio />}
                                        label={displayText.OVERIDE_ALL_VALUE}
                                        className="qcInputRadio" />
-                                    {showMOPRadio ? (
+                                    {showMOPOption ? (
                                        <>
                                           <FormControlLabel
                                              value={fieldMappingSheetConfig.fillInRadioValue}
@@ -1830,13 +1835,13 @@ export default function DataImport() {
                               <FormControl
                                  variant="outlined"
                                  className={classes.formControl}>
-                                 <RadioGroup value={mysRadioValue} onChange={(e) => handleChange(displayText.MIN_YIELD_STRENGTH, e)}>
+                                 <RadioGroup value={mysOptionValue} onChange={(e) => handleChange(displayText.MIN_YIELD_STRENGTH, e)}>
                                     <FormControlLabel
                                        value={fieldMappingSheetConfig.defaultQcInputRadioValue}
                                        control={<Radio />}
                                        label={displayText.OVERIDE_ALL_VALUE}
                                        className="qcInputRadio" />
-                                    {showMYSRadio
+                                    {showMYSOption
                                        ? (
                                           <>
                                              <FormControlLabel
@@ -1895,13 +1900,13 @@ export default function DataImport() {
                                  variant="outlined"
                                  className={classes.formControl}
                               >
-                                 <RadioGroup value={odRadioValue} onChange={(e) => handleChange(displayText.OUTER_DIAMETER, e)}>
+                                 <RadioGroup value={odOptionValue} onChange={(e) => handleChange(displayText.OUTER_DIAMETER, e)}>
                                     <FormControlLabel
                                        value={fieldMappingSheetConfig.defaultQcInputRadioValue}
                                        control={<Radio />}
                                        label={displayText.OVERIDE_ALL_VALUE}
                                        className="qcInputRadio" />
-                                    {showODRadio ? (
+                                    {showODOption ? (
                                        <>
                                           <FormControlLabel
                                              value={fieldMappingSheetConfig.fillInRadioValue}
@@ -2261,7 +2266,7 @@ export default function DataImport() {
                         selectedOperationalArea={dataSummaryOperationalArea}
                         summaryData={summaryList}
                         summaryDataSave={summaryDataCallback}
-                        dataSummary={ILIDataSummary}
+                        dataSummary={iliDataSummary}
                         searchVersion={searchVersion}
                      ></DataEntry>
                      {showVersion && version?.length > arrayConstants.nonEmptyArray ?

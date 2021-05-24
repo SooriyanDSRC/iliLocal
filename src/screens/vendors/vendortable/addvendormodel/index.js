@@ -12,7 +12,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import _ from "lodash";
 import CommonStyles from "../../../../scss/commonStyles";
 import {
-   isEmpty, isEmailFormatCorrect, isEmptyNullUndefined, isNotEmpty, leftTrim, autoCompleteOff,
+   isEmpty, isEmailFormatCorrect, isNotEmptyNullUndefined, isNotEmpty, leftTrim, autoCompleteOff,
    removeSpecialCharacter, removeSpecialCharacterExceptDot, handleCloseStateCountry
 } from "../../../../components/shared/helper";
 import { modalStylingAttributes } from '../../../../modalconstants';
@@ -259,7 +259,7 @@ export default function AddVendorModal(props) {
    };
 
    const handleSelectCountry = (event, selectedCountry) => {
-      if (isEmptyNullUndefined(selectedCountry)) {
+      if (isNotEmptyNullUndefined(selectedCountry)) {
          let url = `${apiRouter.STATE}/${apiRouter.GET_STATEBY_COUNTRY}?${displayText.COUNTRY_GUID}=${selectedCountry?.countryGuid}`;
          dispatch(actionCreator.FetchStateList(url));
       }
@@ -289,7 +289,7 @@ export default function AddVendorModal(props) {
    };
 
    const getStateListbyCountry = () => {
-      if (isEmptyNullUndefined(country)) {
+      if (isNotEmptyNullUndefined(country)) {
          let countryResult = _.find(countryList, (Country) => {
             return Country.name === country;
          });

@@ -13,7 +13,7 @@ import { displayText, errorMessage, apiRouter, sessionStorageKey, stringManipula
 import serviceCall from "../../../../store/serviceCall";
 import _ from "lodash";
 import {
-   isEmailValid, isEmptyNullUndefined, isNotEmpty, leftTrim, isUndefined, autoCompleteOff, removeSpecialCharacter,
+   isEmailValid, isNotEmptyNullUndefined, isNotEmpty, leftTrim, isUndefined, autoCompleteOff, removeSpecialCharacter,
    handleCloseStateCountry, removeSpecialCharacterExceptDot, isNotNull, decryptData
 } from "../../../../components/shared/helper";
 import CommonStyles from "../../../../scss/commonStyles";
@@ -262,7 +262,7 @@ export default function AddUserModal(props) {
    };
 
    const handleSelectCountry = (event, selectedCountry) => {
-      let checkCountry = isEmptyNullUndefined(selectedCountry);
+      let checkCountry = isNotEmptyNullUndefined(selectedCountry);
       if (checkCountry) {
          let url = `${apiRouter.STATE}/${apiRouter.GET_STATEBY_COUNTRY}?${displayText.COUNTRY_GUID}=${selectedCountry?.countryGuid}`;
          dispatch(actionCreator.FetchStateList(url));
@@ -315,7 +315,7 @@ export default function AddUserModal(props) {
             return
          }
          let userDetails = await handleExistsUserDetails();
-         if (isEmptyNullUndefined(userDetails?.data)) {
+         if (isNotEmptyNullUndefined(userDetails?.data)) {
             setExistsUserDetails(userDetails?.data);
             setCheckEmailExists(false);
             setIsLoading(false);
@@ -328,7 +328,7 @@ export default function AddUserModal(props) {
    };
 
    useEffect(() => {
-      if (isEmptyNullUndefined(existsUserDetails)) {
+      if (isNotEmptyNullUndefined(existsUserDetails)) {
          setUserName(existsUserDetails?.userName);
          setAddress(existsUserDetails?.address);
          setCity(existsUserDetails?.city);
@@ -377,7 +377,7 @@ export default function AddUserModal(props) {
    }, [isUserAdded, isUserEdited]);
 
    const getStateListbyCountry = () => {
-      if (isEmptyNullUndefined(country)) {
+      if (isNotEmptyNullUndefined(country)) {
          let countryResult = _.find(countryList, (Country) => {
             return Country.name === country;
          });

@@ -4,7 +4,7 @@ import { FormControl, Grid, TextField, InputLabel, Select, MenuItem, Button, Dia
 import LightToolTip from '../../../../components/shared/lightToolTip';
 import { displayText, errorMessage, stringManipulationCheck } from "../../../../constant";
 import { arrayConstants } from '../../../../arrayconstants';
-import { isUndefined, isNotEmpty, isEmptyNullUndefined } from "../../../../components/shared/helper";
+import { isUndefined, isNotEmpty, isNotEmptyNullUndefined } from "../../../../components/shared/helper";
 import _ from "lodash";
 import { gridWidth, dataImportGrid } from "../../../../gridconstants";
 import CommonStyles from "../../../../scss/commonStyles";
@@ -120,7 +120,7 @@ export default function FieldMappingRow(props) {
          });
          if (isUndefined(data)) {
             setFieldMappingData(data);
-            if (isEmptyNullUndefined(data?.excelUnitName) && isEmptyNullUndefined(data?.excelUnit)) {
+            if (isNotEmptyNullUndefined(data?.excelUnitName) && isNotEmptyNullUndefined(data?.excelUnit)) {
                setChooseSubUnit(data?.excelUnitName)
             }
          }
@@ -131,7 +131,7 @@ export default function FieldMappingRow(props) {
          });
          if (isUndefined(data)) {
             setFieldMappingData(data);
-            if (isEmptyNullUndefined(data?.excelUnitName) && isEmptyNullUndefined(data?.excelUnit)) {
+            if (isNotEmptyNullUndefined(data?.excelUnitName) && isNotEmptyNullUndefined(data?.excelUnit)) {
                setChooseSubUnit(data?.excelUnitName)
             }
          }
@@ -202,7 +202,7 @@ export default function FieldMappingRow(props) {
             return quantitytableListItem.unitName
          }
       });
-      if (!isEmptyNullUndefined(tableUnitDetails) && isEmptyNullUndefined(selectedTargetUnit) && isEmptyNullUndefined(subUnitDetails)) {
+      if (!isNotEmptyNullUndefined(tableUnitDetails) && isNotEmptyNullUndefined(selectedTargetUnit) && isNotEmptyNullUndefined(subUnitDetails)) {
          dispatch(snackbarActionCreator.showFailureSnackbar(`${errorMessage.UNIT_MISMATCH} [${selectedTargetUnit}] ${errorMessage.UNIT_MISMATCH_TARGET} [${subUnitDetails?.abbreviation}]`));
       }
       else {
@@ -274,7 +274,7 @@ export default function FieldMappingRow(props) {
       setDialogOpen(true);
       setChooseUnit(selectedUnit);
       setChooseSubUnit(selectedSubUnit);
-      if (isEmptyNullUndefined(selectedUnit) && selectedUnit !== displayText.DEFAULT_PARENTID) {
+      if (isNotEmptyNullUndefined(selectedUnit) && selectedUnit !== displayText.DEFAULT_PARENTID) {
          props.fetchSubUnits(selectedUnit);
       }
       else {
@@ -334,7 +334,7 @@ export default function FieldMappingRow(props) {
                               onChange={(event) => { setSelectedSubUnitData(event) }}
                               MenuProps={{ disableScrollLock: false }}
                               label={displayText.SUB_UNIT_OF_MEASURE}
-                              disabled={showSubUnit}>
+                              disabled={unitQuantityList[0]?.quantityName !== chooseUnit}>
                               {renderSubunitMenuItem()}
                            </Select>
                         </FormControl>

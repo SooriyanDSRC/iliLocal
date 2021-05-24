@@ -11,7 +11,7 @@ import * as userActionCreator from "../../../store/action/userManageAction";
 import serviceCall from "../../../store/serviceCall";
 import _ from "lodash";
 import {
-   isEmailValid, isNotEmpty, isEmptyNullUndefined, leftTrim, autoCompleteOff, removeSpecialCharacter,
+   isEmailValid, isNotEmpty, isNotEmptyNullUndefined, leftTrim, autoCompleteOff, removeSpecialCharacter,
    removeSpecialCharacterExceptDot, handleCloseStateCountry, isEmpty
 } from "../../../components/shared/helper";
 import { modalStylingAttributes } from '../../../modalconstants';
@@ -232,7 +232,7 @@ export default function ApplicationUserModal(props) {
             setIsShowError(isEmailExists.data);
          } else {
             let userDetails = await handleExistsUserDetails();
-            if (isEmptyNullUndefined(userDetails?.data)) {
+            if (isNotEmptyNullUndefined(userDetails?.data)) {
                setExistsUserDetails(userDetails?.data);
                setCheckEmailExists(false);
             } else {
@@ -269,7 +269,7 @@ export default function ApplicationUserModal(props) {
    };
 
    useEffect(() => {
-      if (isEmptyNullUndefined(existsUserDetails)) {
+      if (isNotEmptyNullUndefined(existsUserDetails)) {
          setUserName(existsUserDetails?.userName);
          setAddress(existsUserDetails?.address);
          setCity(existsUserDetails?.city);
@@ -320,14 +320,14 @@ export default function ApplicationUserModal(props) {
    }, [country]);
 
    const handleSelectCountry = (selectedCountry) => {
-      if (isEmptyNullUndefined(selectedCountry)) {
+      if (isNotEmptyNullUndefined(selectedCountry)) {
          let url = `${apiRouter.STATE}/${apiRouter.GET_STATEBY_COUNTRY}?${displayText.COUNTRY_GUID}=${selectedCountry?.countryGuid}`;
          dispatch(userActionCreator.FetchStateList(url));
       }
    };
 
    const getStateListbyCountry = () => {
-      if (isEmptyNullUndefined(country)) {
+      if (isNotEmptyNullUndefined(country)) {
          let countryResult = _.find(countryList, (Country) => {
             return Country.name === country;
          });

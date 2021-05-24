@@ -15,7 +15,7 @@ import { displayText, apiRouter, sessionStorageKey, stringManipulationCheck } fr
 import { userTableHeader } from "../../../tableheaderconstant";
 import AddModal from "./addusermanagementmodel";
 import _ from "lodash";
-import { isNullUndefined, isUndefined, isEmptyNullUndefined, findFeatures, findFeaturesRole, decryptData, getDirection } from "../../../components/shared/helper";
+import { isNullUndefined, isUndefined, isNotEmptyNullUndefined, findFeatures, findFeaturesRole, decryptData, getDirection } from "../../../components/shared/helper";
 
 const useStyles = makeStyles((theme) => ({
    table: {
@@ -135,7 +135,7 @@ export default function UserManagementTable(props) {
 
    const renderDelete = (props) => {
       let features = findFeaturesRole(props.userRoles?.operations, displayText.DELETE_USER_ROLE);
-      if (isEmptyNullUndefined(features) && userDetail?.email !== JSON.parse(decryptData(sessionStorageKey.USER_DETAILS)).email) {
+      if (isNotEmptyNullUndefined(features) && userDetail?.email !== JSON.parse(decryptData(sessionStorageKey.USER_DETAILS)).email) {
          return (
             props.isActive && (
                <div>
@@ -166,12 +166,12 @@ export default function UserManagementTable(props) {
       let isUserEditRole = findFeaturesRole(props.userRoles?.operations, displayText.EDIT_USER);
       let isUserDeleteRole = findFeaturesRole(props.userRoles?.operations, displayText.DELETE_USER_ROLE);
       if (!props.isActive) {
-         return isEmptyNullUndefined(isUserEditRole);
+         return isNotEmptyNullUndefined(isUserEditRole);
       }
       if (userDetail?.email === JSON.parse(decryptData(sessionStorageKey.USER_DETAILS)).email) {
-         return isEmptyNullUndefined(isUserEditRole);
+         return isNotEmptyNullUndefined(isUserEditRole);
       }
-      return (isEmptyNullUndefined(isUserEditRole) || isEmptyNullUndefined(isUserDeleteRole));
+      return (isNotEmptyNullUndefined(isUserEditRole) || isNotEmptyNullUndefined(isUserDeleteRole));
    }
 
    useEffect(() => {
@@ -179,7 +179,7 @@ export default function UserManagementTable(props) {
          const operations = _.find(props.userRoles?.operations, (operations) => {
             return (operations.name === displayText.EDIT_USER || operations.name === displayText.DELETE_USER_ROLE);
          });
-         isEmptyNullUndefined(operations) ? setShowSubFeatures(true) : setShowSubFeatures(false);
+         isNotEmptyNullUndefined(operations) ? setShowSubFeatures(true) : setShowSubFeatures(false);
       }
    }, [props.userRoles]);
 

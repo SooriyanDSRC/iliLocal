@@ -1,12 +1,16 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
-import { Grid, TextField, MenuItem, InputLabel, Select, FormControl, Button } from "@material-ui/core";
+import { Grid, TextField, MenuItem, InputLabel, Select, FormControl, Button, Paper, OutlinedInput, InputAdornment, IconButton } from "@material-ui/core";
 import { displayText, stringManipulationCheck } from "../../../constant";
-import { isEmptyNullUndefined, convertToISODate, formatDate, checkFieldLength, isNotNull } from "../../../components/shared/helper";
+import { isNotEmptyNullUndefined, convertToISODate, formatDate, checkFieldLength, isNotNull } from "../../../components/shared/helper";
 import { fieldMappingSheetConfig } from "../../../dataimportconstants";
 import { dataImportGrid } from "../../../gridconstants";
 import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import DataEntryStyles from "../../../scss/dataEntryStyles";
+import Draggable from 'react-draggable';
+import DatePickerDialog from './datepickerdialog';
+import EventIcon from '@material-ui/icons/Event';
+import moment from "moment";
 
 const DataEntry = (props, ref) => {
   useImperativeHandle(ref, () => ({
@@ -14,6 +18,11 @@ const DataEntry = (props, ref) => {
       handleSaveDataEntry();
     },
   }));
+
+  const [showDatePickerDialog, setShowDatePickerDialog] = useState(false);
+  const [datePickerDialogTitle, setDatePickerDialogTitle] = useState(null);
+  const [datePickerMinDate, setDatePickerMinDate] = useState(null);
+  const [currentDateValue, setCurrentDateValue] = useState(null);
 
   const [versionNumber, setVersionNumber] = useState(null);
   const [projectNumber, setProjectNumber] = useState(null);
@@ -38,6 +47,14 @@ const DataEntry = (props, ref) => {
   const formatFieldValues = (value, previousValue) => {
     return checkFieldLength(value.length, fieldMappingSheetConfig.iliDataCommentsLocationLimit) ? previousValue : value;
   };
+
+  function PaperComponent(props) {
+    return (
+      <Draggable handle="#draggable-dialog-title" cancel={'[class*="MuiDialogContent-root"]'}>
+        <Paper {...props} />
+      </Draggable>
+    );
+  }
 
   const handleInputChange = (type, e) => {
     switch (type) {
@@ -110,7 +127,7 @@ const DataEntry = (props, ref) => {
   }, [props])
 
   useEffect(() => {
-    if (isEmptyNullUndefined(props.dataSummary)) {
+    if (isNotEmptyNullUndefined(props.dataSummary)) {
       setComments(props.dataSummary.comments);
       setVersionNumber(props.dataSummary.versionNumber);
       setProjectNumber(props.dataSummary.projectNumber);
@@ -141,22 +158,103 @@ const DataEntry = (props, ref) => {
     setSelectedToolVendor(selectedToolVendor);
   };
 
+  const handleDatePickerDialogOpen = (title, minimalDate, selectedDate) => {
+    setDatePickerDialogTitle(title);
+    setDatePickerMinDate(minimalDate);
+    setShowDatePickerDialog(true);
+    setCurrentDateValue(selectedDate);
+  };
+
+  const handleDatePickerDialogClose = () => {
+    setShowDatePickerDialog(false);
+    setDatePickerDialogTitle(null);
+    setDatePickerMinDate(null);
+    setCurrentDateValue(null);
+  };
+
+  const onSaveDate = (fieldName, dateValue) => {
+    handleInputChange(fieldName, dateValue)
+    handleDatePickerDialogClose();
+  };
+
+  const onCancelDate = () => {
+    handleDatePickerDialogClose();
+  };
+
+  const convertDate = (date) => {
+    return moment(date).format('LL');
+  }
+
   const renderDates = () => {
     return (
       <>
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
           <Grid item xs={dataImportGrid.DataEntryColumn}>
-            <KeyboardDatePicker
+            <DatePickerDialog 
+            showDialog={showDatePickerDialog} 
+            heading={datePickerDialogTitle} 
+            openDialog={handleDatePickerDialogOpen} 
+            onSave={onSaveDate} 
+            onCancel={onCancelDate} 
+            inputChange={handleInputChange}
+            minimalDate={datePickerMinDate}
+            dateValue={currentDateValue}
+            />
+            <FormControl
+              variant="outlined"
+              className={commonClasses.formControl}
+              onClick={(e) => handleDatePickerDialogOpen(displayText.BEGIN_DATE, null, beginDate)}>
+              <InputLabel htmlFor="outlined-age-native-simple" className="formControlLabel">
+              {displayText.BEGIN_DATE}
+              </InputLabel>
+              <OutlinedInput
+                id="outlined-adornment-password"
+                value={convertDate(beginDate)}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle Event"
+                      edge="end">
+                      <EventIcon />
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+            {/* <KeyboardDatePicker
+              disableToolbar
+              variant="inline"
               margin="normal"
               format={displayText.DATE_FORMAT}
               label={displayText.BEGIN_DATE}
               className={(commonClasses.textField, "DataEntryDateTextField")}
               InputLabelProps={{ shrink: true }}
               onChange={(event) => handleInputChange(displayText.BEGIN_DATE, event)}
-              value={beginDate} />
+              value={beginDate} /> */}
           </Grid>
           <Grid item xs={dataImportGrid.DataEntryColumn}>
-            <KeyboardDatePicker
+          <FormControl
+              variant="outlined"
+              className={commonClasses.formControl}
+              onClick={(e) => handleDatePickerDialogOpen(displayText.END_DATE,beginDate,endDate)}>
+              <InputLabel htmlFor="outlined-age-native-simple" className="formControlLabel">
+              {displayText.END_DATE}
+              </InputLabel>
+              <OutlinedInput
+                id="outlined-adornment-password"
+                value={convertDate(endDate)}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle Event"
+                      edge="end">
+                      <EventIcon />
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+            {/* <KeyboardDatePicker
               margin="normal"
               format={displayText.DATE_FORMAT}
               label={displayText.END_DATE}
@@ -164,27 +262,69 @@ const DataEntry = (props, ref) => {
               InputLabelProps={{ shrink: true }}
               minDate={beginDate}
               onChange={(event) => handleInputChange(displayText.END_DATE, event)}
-              value={endDate} />
+              value={endDate} /> */}
           </Grid>
           <Grid item xs={dataImportGrid.DataEntryColumn}>
-            <KeyboardDatePicker
-              margin="normal"
-              format={displayText.DATE_FORMAT}
-              label={displayText.IMPORT_DATE}
-              className={(commonClasses.textField, "DataEntryDateTextField")}
-              InputLabelProps={{ shrink: true }}
-              onChange={(event) => handleInputChange(displayText.IMPORT_DATE, event)}
-              value={importDate} />
+          <FormControl
+              variant="outlined"
+              className={commonClasses.formControl}
+              onClick={(e) => handleDatePickerDialogOpen(displayText.IMPORT_DATE,null,importDate)}>
+              <InputLabel htmlFor="outlined-age-native-simple" className="formControlLabel">
+              {displayText.IMPORT_DATE}
+              </InputLabel>
+              <OutlinedInput
+                id="outlined-adornment-password"
+                value={convertDate(importDate)}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle Event"
+                      edge="end">
+                      <EventIcon />
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+              {/* <KeyboardDatePicker
+                margin="normal"
+                format={displayText.DATE_FORMAT}
+                label={displayText.IMPORT_DATE}
+                className={(commonClasses.textField, "DataEntryDateTextField")}
+                InputLabelProps={{ shrink: true }}
+                onChange={(event) => handleInputChange(displayText.IMPORT_DATE, event)}
+                value={importDate} /> */}
           </Grid>
           <Grid item xs={dataImportGrid.DataEntryColumn}>
-            <KeyboardDatePicker
+          <FormControl
+              variant="outlined"
+              className={commonClasses.formControl}
+              onClick={(e) => handleDatePickerDialogOpen(displayText.REPORT_DATE,null,reportDate)}>
+              <InputLabel htmlFor="outlined-age-native-simple" className="formControlLabel">
+              {displayText.REPORT_DATE}
+              </InputLabel>
+              <OutlinedInput
+                id="outlined-adornment-password"
+                value={convertDate(reportDate)}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle Event"
+                      edge="end">
+                      <EventIcon />
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+            {/* <KeyboardDatePicker
               margin="normal"
               format={displayText.DATE_FORMAT}
               label={displayText.REPORT_DATE}
               className={(commonClasses.textField, "DataEntryDateTextField")}
               InputLabelProps={{ shrink: true }}
               onChange={(event) => handleInputChange(displayText.REPORT_DATE, event)}
-              value={reportDate} />
+              value={reportDate} /> */}
           </Grid>
         </MuiPickersUtilsProvider>
       </>

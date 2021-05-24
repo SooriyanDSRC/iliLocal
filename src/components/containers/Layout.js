@@ -5,7 +5,7 @@ import axios from 'axios';
 import { statusCode, apiRouter, sessionStorageKey, stringManipulationCheck, tokenValidity } from '../../constant';
 import * as actionCreator from "../../store/action/userAction";
 import { useDispatch } from "react-redux";
-import { isEmptyNullUndefined, decryptData, isNullorUndefined, isCookieValid } from '../shared/helper';
+import { isNotEmptyNullUndefined, decryptData, isNullorUndefined, isCookieValid } from '../shared/helper';
 import { arrayConstants } from '../../arrayconstants';
 
 export default function Layout() {
@@ -19,7 +19,7 @@ export default function Layout() {
    }, []);
 
    const startRefreshTokenTimer = () => {
-      if (isEmptyNullUndefined(document.cookie)) {
+      if (isNotEmptyNullUndefined(document.cookie)) {
          let token = document.cookie.split(stringManipulationCheck.ASSIGNTO_OPERATOR);
          const jwtToken = JSON.parse(atob(token[arrayConstants.tokenData].split(stringManipulationCheck.DOT_OPERATOR)[arrayConstants.tokenData]));
          const expires = new Date(jwtToken.exp * tokenValidity.convertToMilliSeconds);

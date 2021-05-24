@@ -6,7 +6,7 @@ import {
    InputLabel, InputAdornment, Modal, Backdrop, Fade
 } from "@material-ui/core";
 import TextRecord from "../../components/shared/textRecord";
-import { isEmptyNullUndefined, isDotEmpty, isEmpty, isNotNull, encryptData, decryptData } from "../../components/shared/helper";
+import { isNotEmptyNullUndefined, isDotEmpty, isEmpty, isNotNull, encryptData, decryptData } from "../../components/shared/helper";
 import { Close, Visibility, VisibilityOff } from "@material-ui/icons";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { useDispatch, useSelector } from "react-redux";
@@ -421,7 +421,7 @@ export default function MyProfile() {
    };
 
    const getStateListbyCountry = (editCountry) => {
-      if (isEmptyNullUndefined(editCountry)) {
+      if (isNotEmptyNullUndefined(editCountry)) {
          var countryResult = _.find(countryList, (Country) => {
             return Country.name === editCountry;
          });
@@ -451,7 +451,7 @@ export default function MyProfile() {
    }, [myProfile]);
 
    const handleSelectCountry = (event, selectedCountry) => {
-      if (isEmptyNullUndefined(selectedCountry)) {
+      if (isNotEmptyNullUndefined(selectedCountry)) {
          var url = `${apiRouter.STATE}/${apiRouter.GET_STATEBY_COUNTRY}?${displayText.COUNTRY_GUID}=${selectedCountry?.countryGuid}`;
          dispatch(actionCreator.FetchStateList(url));
       }

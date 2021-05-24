@@ -79,7 +79,7 @@ export default function SheetTabs(props) {
       if (isSelectedTabChecked && isSelectedTabIndexEqual) {
          copyAllSheetData[selectedTabIndex].isTabChecked = !copyAllSheetData[selectedTabIndex]?.isTabChecked;
       }
-      if (!isSelectedTabChecked && !isSelectedTabIndexEqual) {
+      if (!isSelectedTabChecked || !isSelectedTabIndexEqual) {
          copyAllSheetData[selectedTabIndex][isTabChecked] = true;
          copyAllSheetData[selectedTabIndex][index] = selectedTabIndex;
       }
@@ -114,18 +114,12 @@ export default function SheetTabs(props) {
                   key={activeStep !== fieldMappingSheetConfig.fieldMappingScreen ? sheetIndex : currentSheet?.index}
                   label={currentSheet.sheetName}
                   control={
-                     activeStep !== fieldMappingSheetConfig.fieldMappingScreen
-                        ? <Checkbox
+                        <Checkbox
                            className={value === sheetIndex
                               ? commonClasses.activeTabCheckBoxColor
                               : commonClasses.tabCheckBoxColor}
                            checked={currentSheet?.isTabChecked}
-                           onChange={() => { selectedPanel(sheetIndex) }} />
-                        : <Checkbox
-                           className={value === sheetIndex
-                              ? commonClasses.activeTabCheckBoxColor
-                              : commonClasses.tabCheckBoxColor}
-                           checked={currentSheet?.isTabChecked} />
+                           onChange={activeStep !== fieldMappingSheetConfig.fieldMappingScreen ? () => { selectedPanel(sheetIndex) } : ()=> {}} />
                   }
                />
             }>
