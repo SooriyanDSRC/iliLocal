@@ -6,40 +6,40 @@ const useStyles = makeStyles((theme) => ({
   lableStyle: {
     color: "#00648d",
     textAlign: "left",
-    width: "100%",
+    width: "100%"
   },
   textfieldStyle: {
     background: "#ebedef",
     color: "#000000",
     fontWeight: "700",
-    margin: "0 !important",
+    margin: "0 !important"
   },
 }));
 
 const BoarderLessTextField = withStyles({
   root: {
     "& label": {
-      boarderRadius: "4%",
+      boarderRadius: "4%"
     },
     "& .MuiInputBase-root": {
       fontWeight: "700",
-      color: "#3c4b64",
+      color: "#3c4b64"
     },
     "& .MuiInput-underline:after": {
-      borderBottomColor: "#ffffff",
+      borderBottomColor: "#ffffff"
     },
     "& .MuiOutlinedInput-root": {
       "& fieldset": {
-        borderColor: "#ffffff",
+        borderColor: "#ffffff"
       },
       "&:hover fieldset": {
-        borderColor: "#ffffff",
+        borderColor: "#ffffff"
       },
       "&.Mui-focused fieldset": {
-        borderColor: "#ffffff",
-      },
-    },
-  },
+        borderColor: "#ffffff"
+      }
+    }
+  }
 })(TextField);
 
 export default function TextRecord(props) {
@@ -49,7 +49,6 @@ export default function TextRecord(props) {
       <Typography className={classes.lableStyle} variant="h6">
         {props.lableName}
       </Typography>
-
       <BoarderLessTextField
         className={classes.textfieldStyle}
         variant="outlined"
@@ -60,8 +59,7 @@ export default function TextRecord(props) {
         }}
         id="outlined-read-only-input"
         value={props.textValue}
-        fullWidth
-      />
+        fullWidth />
     </>
   );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CHeader, CHeaderBrand, CHeaderNav, CSubheader } from '@coreui/react';
+import { CHeader, CHeaderNav, CSubheader } from '@coreui/react';
 import DynamicBreadcrumbs from './DynamicBreadcrumbs';
 import { HeaderDropdown } from './index';
 import MenuIcon from '@material-ui/icons/Menu';

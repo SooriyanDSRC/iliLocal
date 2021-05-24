@@ -4,19 +4,20 @@ import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 import { statusCode, apiRouter, sessionStorageKey, stringManipulationCheck, tokenValidity } from '../../constant';
 import * as actionCreator from "../../store/action/userAction";
-import { useDispatch } from "react-redux";
-import { isEmptyNullUndefined, decryptData, isNullorUndefined, isCookieValid } from '../shared/helper';
+import { useDispatch, useSelector } from "react-redux";
+import { isEmptyNullUndefined, isNotNull, decryptData, isNullorUndefined, isCookieValid } from '../shared/helper';
 import { arrayConstants } from '../../arrayconstants';
 
 export default function Layout() {
    const history = useHistory();
    const dispatch = useDispatch();
+   const { isRefreshCallTriggered } = useSelector((state) => state.user);
 
    useEffect(() => {
       startRefreshTokenTimer();
       setInterval(() => checkUserLoggedIn(), tokenValidity.checkUserDetailsInterval);
       // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, []);
+   }, [isRefreshCallTriggered]);
 
    const startRefreshTokenTimer = () => {
       if (isEmptyNullUndefined(document.cookie)) {
@@ -38,7 +39,7 @@ export default function Layout() {
    }
 
    const triggerRefreshToken = () => {
-      if (isCookieValid()) {
+      if (isCookieValid() && !isRefreshCallTriggered) {
          const url = `${apiRouter.USERS}/${apiRouter.REFRESH_TOKEN}`;
          dispatch(actionCreator.GetRefreshToken(url));
       }

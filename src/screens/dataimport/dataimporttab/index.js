@@ -79,7 +79,7 @@ export default function SheetTabs(props) {
       if (isSelectedTabChecked && isSelectedTabIndexEqual) {
          copyAllSheetData[selectedTabIndex].isTabChecked = !copyAllSheetData[selectedTabIndex]?.isTabChecked;
       }
-      if (!isSelectedTabChecked && !isSelectedTabIndexEqual) {
+      if (!isSelectedTabChecked || !isSelectedTabIndexEqual) {
          copyAllSheetData[selectedTabIndex][isTabChecked] = true;
          copyAllSheetData[selectedTabIndex][index] = selectedTabIndex;
       }

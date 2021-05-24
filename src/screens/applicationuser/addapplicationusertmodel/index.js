@@ -367,6 +367,19 @@ export default function ApplicationUserModal(props) {
       return stringManipulationCheck.EMPTY_STRING;
    }
 
+   const renderCheckBox = (isCurrentUser) => {
+      return (isCurrentUser
+         ? <Grid item xs={gridWidth.DefaultWidth}>
+            <FormControlLabel
+               checked={isactive}
+               control={<Checkbox color="primary" />}
+               onChange={(e) => handleInputChange(displayText.ISACTIVE, e)}
+               label={displayText.ISACTIVE}
+               labelPlacement="end" />
+         </Grid>
+         : <Grid item xs={gridWidth.DefaultWidth}></Grid>)
+   }
+
    return (
       <Modal
          aria-labelledby="add-app-user-modal-title"
@@ -385,7 +398,7 @@ export default function ApplicationUserModal(props) {
                         ? displayText.ADD_APP_ADMIN
                         : displayText.EDIT_APPLICATION_USER}
                   </div>
-                  <div onClick={(e) => { handleCloseUser(); }}>
+                  <div onClick={(e) => handleCloseUser()}>
                      <Close className="closeFontSize" />
                   </div>
                </div>
@@ -510,14 +523,7 @@ export default function ApplicationUserModal(props) {
                         {
                            (action === displayText.ADD && !isCurrentUser)
                               ? (<Grid item xs={gridWidth.DefaultWidth} />)
-                              : isCurrentUser ? (<Grid item xs={gridWidth.DefaultWidth}>
-                                 <FormControlLabel
-                                    checked={isactive}
-                                    control={<Checkbox color="primary" />}
-                                    onChange={(e) => handleInputChange(displayText.ISACTIVE, e)}
-                                    label={displayText.ISACTIVE}
-                                    labelPlacement="end" />
-                              </Grid>) : <Grid item xs={gridWidth.DefaultWidth}></Grid>
+                              : renderCheckBox(isCurrentUser)
                         }
                         <Grid item xs={gridWidth.DefaultWidth}>
                            <div className={classes.footer}>
@@ -531,7 +537,7 @@ export default function ApplicationUserModal(props) {
                               <div>
                                  <Button
                                     className={classes.cancelButton}
-                                    onClick={(e) => { handleCloseUser() }}>
+                                    onClick={(e) => handleCloseUser()}>
                                     {displayText.CANCEL}
                                  </Button>
                               </div>

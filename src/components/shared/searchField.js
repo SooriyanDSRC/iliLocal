@@ -11,19 +11,19 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
     width: 400,
-    height: 50,
+    height: 50
   },
   input: {
     marginLeft: theme.spacing(1),
-    flex: 1,
+    flex: 1
   },
   iconButton: {
-    padding: 10,
+    padding: 10
   },
   divider: {
     height: 28,
-    margin: 4,
-  },
+    margin: 4
+  }
 }));
 
 export default function SearchField(props) {

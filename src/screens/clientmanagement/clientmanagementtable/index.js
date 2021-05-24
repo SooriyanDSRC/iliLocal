@@ -170,7 +170,7 @@ export default function ClientTable(props) {
                <TableHead>
                   <TableRow>
                      {clientTableHeader.CLIENT_TABLE.map((cHeader) => (
-                        <TableCell key={cHeader.header + "_client"} align="left">
+                        <TableCell key={cHeader.header + stringManipulationCheck.UNDERSCORE_OPERATOR + displayText.CLIENT_TABLE_HEADER}>
                            <TableSortLabel
                               active={orderBy === cHeader.sort}
                               direction={getDirection(cHeader, orderBy, isAsc)}
@@ -279,8 +279,7 @@ export default function ClientTable(props) {
             open={isEditClientOpen}
             handleClose={handleCloseEditClientDialog}
             clientDetails={actionClient}
-            action={displayText.EDIT}
-         />
+            action={displayText.EDIT} />
       </div>
    );
 }

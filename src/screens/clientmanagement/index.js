@@ -156,8 +156,7 @@ export default function Clients() {
                   handleSortTable={handleSortTable}
                   isAsc={isAsc}
                   orderBy={orderBy}
-                  clientRoles={clientRoles}
-               />
+                  clientRoles={clientRoles} />
                {clientDetails?.data?.__count === initialDataCount ? (
                   <Paper className={classes.paper}>{displayText.NO_DATA_FOUND}</Paper>
                ) : (

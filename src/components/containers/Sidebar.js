@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
    CSidebar,
    CSidebarBrand,
@@ -15,7 +15,7 @@ import { apiRouter, sessionStorageKey, displayText, stringManipulationCheck, toP
 import * as actionCreator from '../../store/action/userAction';
 import _ from 'lodash';
 import * as dataImportActionCreator from '../../store/action/dataImportAction';
-import { isNullUndefined, decryptData, deleteFile, findFeaturesRole, isCookieValid } from '../shared/helper';
+import { isNullUndefined, decryptData, deleteFile, findFeaturesRole, isCookieValid, isEmptyNullUndefined } from '../shared/helper';
 import ClientChangeModal from './clientChangeModal';
 import NavigationMenu from './Nav';
 import ResponsiveSideDrawer from './ResponsiveSideDrawer';
@@ -30,18 +30,6 @@ const Sidebar = () => {
    const [navigateTo, setNavigateTo] = useState(null);
    const { userFeatures, isSelectedClientLoader, isLogoutLoading, featuresLoader, myProfileLoader } = useSelector((state) => state.user);
    const { selectedVendor, selectedOperationalArea, fileName, dataSaveCompleted } = useSelector((state) => state.dataImportManage);
-   const { showSideBar } = useSelector((state) => state.sideBar);
-
-   // useEffect(() => {
-   //    handleResize();
-   // }, [document.documentElement.clientWidth]);
-
-   // const handleResize = () => {
-   //    if (document.documentElement.clientWidth > 743) {
-   //       return dispatch(updateSideBarVisibility(true));
-   //    }
-   //    dispatch(updateSideBarVisibility(false));
-   // };
 
    useEffect(() => {
       if (isNullUndefined(userFeatures)) {
@@ -64,12 +52,11 @@ const Sidebar = () => {
          }
          _.forEach([...userFeatures], function (features, index) {
             let result = findFeaturesRole(NavigationMenu, features?.name);
-            if (features?.to) {
-               userFeatures[index][navIcon] = result?.icon;
+            userFeatures[index][navIcon] = result?.icon
+            if (isEmptyNullUndefined(features?.to)) {
                return;
             }
             userFeatures[index][toPath] = result?.to;
-            userFeatures[index][navIcon] = result?.icon
          });
          setNavFeatures(userFeatures);
       }
@@ -95,7 +82,7 @@ const Sidebar = () => {
       setDataImportDialog(false);
    }
 
-   const onNavItemClick = (e=null, to) => {
+   const onNavItemClick = (e = null, to) => {
       e && e.preventDefault();
       dispatch(updateSideBarVisibility(false));
       if (location.pathname === apiRouter.DATA_IMPORT && to !== apiRouter.DATA_IMPORT && (selectedVendor || selectedOperationalArea) && !dataSaveCompleted) {
@@ -108,17 +95,9 @@ const Sidebar = () => {
       history.push(to);
    }
 
-   const setSideBar = () => {
-
-   };
-
    return (
       <>
-         <CSidebar className="d-sm-block-none"
-         // minimize={true}
-         // show={true}
-         // show={showSideBar} onShowChange={setSideBar}
-         >
+         <CSidebar className="d-sm-block-none">
             <CSidebarBrand className="d-md-block" to="/">
                <CImg src={ILILogo} className="sidemenuheader" alt={displayText.CENOZON_LOGO} />
             </CSidebarBrand>
@@ -138,7 +117,7 @@ const Sidebar = () => {
             </CSidebarNav>
             <CSidebarMinimizer breakpoint='md' />
          </CSidebar>
-         <ResponsiveSideDrawer navmenu={navFeatures} navigateFunction={onNavItemClick}/>
+         <ResponsiveSideDrawer navmenu={navFeatures} navigateFunction={onNavItemClick} />
          <ClientChangeModal
             isDialogOpen={dataImportDialog}
             continueNavigation={onContinueClick}

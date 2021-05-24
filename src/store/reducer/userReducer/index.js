@@ -23,7 +23,8 @@ const initialState = {
    isSelectedClientLoader: false,
    validationMessage: stringManipulationCheck.EMPTY_STRING,
    isLogoutLoading: null,
-   isResetTokenExpired: false
+   isResetTokenExpired: false,
+   isRefreshCallTriggered: false
 };
 
 const userReducer = (state = initialState, action = {}) => {
@@ -174,6 +175,16 @@ const userReducer = (state = initialState, action = {}) => {
          return {
             ...state,
             isLogoutLoading: false
+         }
+      case userReducerConstant.SET_REFRESH_LOADER:
+         return {
+            ...state,
+            isRefreshCallTriggered: true
+         }
+      case userReducerConstant.REMOVE_REFRESH_LOADER:
+         return {
+            ...state,
+            isRefreshCallTriggered: false
          }
       default:
          return state;

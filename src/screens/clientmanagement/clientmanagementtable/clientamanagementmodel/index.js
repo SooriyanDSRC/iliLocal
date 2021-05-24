@@ -204,7 +204,8 @@ export default function AddClientModal(props) {
             if (e.target.value.length <= modalStylingAttributes.cityCharacterLimit) {
                let cityName = removeSpecialCharacter(e.target.value);
                return setCity(cityName.replace(regularExpression.CITY, stringManipulationCheck.EMPTY_STRING));
-            } else return;
+            }
+            return;
          }
          case displayText.POSTALCODE:
             return setPostal(e.target.value);
@@ -212,9 +213,8 @@ export default function AddClientModal(props) {
             let phoneNumber = e.target.value.replace(regularExpression.PHONE, stringManipulationCheck.EMPTY_STRING);
             if (phoneNumber.length <= displayText.PHONE_NUMBER_LENGTH) {
                return setPhone(phoneNumber);
-            } else {
-               return setPhone(phone);
             }
+            return setPhone(phone);
          case displayText.ISACTIVE:
             return setIsActive(e.target.checked);
          default:
@@ -293,8 +293,7 @@ export default function AddClientModal(props) {
                   fullWidth
                   helperText={(isEmpty(name) && isShowError) ? errorMessage.PLEASE_ENTER_CLIENT_NAME :
                      checkClientName ? errorMessage.CLIENT_ALREADY_EXISTS : (stringManipulationCheck.EMPTY_STRING)
-                  }
-               />
+                  } />
             </Grid>
             <Grid item xs={gridWidth.DefaultWidth}>
                <TextField
@@ -303,8 +302,7 @@ export default function AddClientModal(props) {
                   onChange={(e) => setAddress(e.target.value)}
                   id="filled-required"
                   label={displayText.ADDRESS}
-                  fullWidth
-               />
+                  fullWidth />
             </Grid>
             <Grid item xs={gridWidth.DefaultWidth}>
                <TextField
@@ -313,8 +311,7 @@ export default function AddClientModal(props) {
                   onChange={(e) => handleInputChange(displayText.CITY, e)}
                   id="filled-required"
                   label={displayText.CITY}
-                  fullWidth
-               />
+                  fullWidth />
             </Grid>
          </>
       )
@@ -363,8 +360,7 @@ export default function AddClientModal(props) {
                   value={postal}
                   onChange={(e) => setPostal(e.target.value)}
                   label={displayText.POSTALCODE}
-                  fullWidth
-               />
+                  fullWidth />
             </Grid>
          </>
       )
@@ -379,8 +375,7 @@ export default function AddClientModal(props) {
                   value={phone}
                   onChange={(e) => handleInputChange(displayText.PHONE, e)}
                   label={displayText.PHONE}
-                  fullWidth
-               />
+                  fullWidth />
             </Grid>
             <Grid item xs={gridWidth.DefaultWidth}>
                <TextField
@@ -388,8 +383,7 @@ export default function AddClientModal(props) {
                   value={mainContact}
                   onChange={(e) => handleInputChange(clientProfileLabelText.MAINCONTACT, e)}
                   label={clientProfileLabelText.MAINCONTACT}
-                  fullWidth
-               />
+                  fullWidth />
             </Grid>
             <Grid item xs={gridWidth.DefaultWidth}>
                <TextField
@@ -404,8 +398,7 @@ export default function AddClientModal(props) {
                      isEmailError
                         ? errorMessage.PLEASE_ENTER_CORRECT_MAIL_FORMAT
                         : stringManipulationCheck.EMPTY_STRING
-                  }
-               />
+                  } />
             </Grid>
          </>
       )
@@ -436,8 +429,7 @@ export default function AddClientModal(props) {
                      control={<Checkbox color="primary" />}
                      onChange={(e) => handleInputChange(displayText.ISACTIVE, e)}
                      label={displayText.ISACTIVE}
-                     labelPlacement="end"
-                  />
+                     labelPlacement="end" />
                </>
             ) : (<></>)}
          </Grid>
@@ -451,16 +443,14 @@ export default function AddClientModal(props) {
                <div>
                   <Button
                      className={commonClasses.saveBtn}
-                     onClick={(e) => handleSaveClient()}
-                  >
+                     onClick={(e) => handleSaveClient()}>
                      {displayText.SAVE}
                   </Button>
                </div>
                <div className="ml-5">
                   <Button
                      className={commonClasses.cancelBtn}
-                     onClick={(e) => handleCloseModel()}
-                  >
+                     onClick={(e) => handleCloseModel()}>
                      {displayText.CANCEL}
                   </Button>
                </div>
@@ -479,8 +469,7 @@ export default function AddClientModal(props) {
          BackdropComponent={Backdrop}
          BackdropProps={{
             timeout: modalStylingAttributes.backDropTimeout,
-         }}
-      >
+         }}>
          <Fade in={props.open}>
             <div className={classes.root}>
                <LoadingOverlay active={isLoading} spinner text={displayText.SAVING}></LoadingOverlay>

@@ -288,7 +288,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const chunkSize = 1048576 * 3; //its 3MB, increase the number measure in mb
-const apiUrl = process.env.REACT_APP_API_URL ?? '';
 
 export default function DataImport() {
    const classes = useStyles();
@@ -886,8 +885,8 @@ export default function DataImport() {
             columns.push(sheetValue.key);
          });
       });
-      let formData = new FormData();
-      let jsonData = {};
+      const formData = new FormData();
+      const jsonData = {};
       jsonData[displayText.SELECTED_VENDOR_NAME] = isEmptyNullUndefined(summaryList) ? _.find(summaryList.iliToolVendorClNames, { iliToolVendorClGuid: summaryData.toolVendorCl }).name : null;
       jsonData[displayText.VENDOR_ID] = summaryData.toolVendorCl;
       jsonData[displayText.EXCEL_COLUMNS] = columns;
@@ -1353,7 +1352,7 @@ export default function DataImport() {
          return dropDownData
       }
       dropDownData.push(<MenuItem value={displayText.DEFAULT_PARENTID}>
-         {displayText.LOADING}
+         {displayText.SELECT}
       </MenuItem>)
       return dropDownData
    }
@@ -1416,6 +1415,7 @@ export default function DataImport() {
                                  value={selectedSubUnit}
                                  onChange={(event) => { setSelectedSubUnitData(event) }}
                                  MenuProps={{ disableScrollLock: false }}
+                                 disabled={selectedUnit === displayText.DEFAULT_PARENTID}
                                  label={displayText.SUB_UNIT_OF_MEASURE}>
                                  {renderSubUnitMenuItems()}
                               </Select>
@@ -2321,7 +2321,6 @@ export default function DataImport() {
                      activeStep={activeStep} />
                   <Fieldmapping
                      ref={childRef}
-                     data={fieldMappingFieldsData}
                      fieldMappingFieldsData={fieldMappingFieldsData}
                      getFieldMappingData={getFieldMappingData}
                      sheetData={excelData}

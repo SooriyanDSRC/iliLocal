@@ -136,16 +136,19 @@ export default function SetPassword() {
       if (isEmpty(newPassword)) {
          setPasswordErrorMessage(errorMessage.PLEASE_ENTER_NEW_PASSWORD);
          setNewPasswordError(true);
+         setConfirmPasswordError(false);
          return;
       }
       if (isEmpty(confirmPassword)) {
          setPasswordErrorMessage(errorMessage.PLEASE_ENTER_CONFIRM_PASSWORD);
          setConfirmPasswordError(true);
+         setNewPasswordError(false);
          return;
       }
       if (newPassword.length !== confirmPassword.length || !_.isEqual(newPassword, confirmPassword)) {
          setPasswordErrorMessage(errorMessage.BOTH_PASSWORD_SHOULD_MATCH);
          setConfirmPasswordError(true);
+         setNewPasswordError(true);
          return;
       }
       const isNewPassword = regularExpression.PASSWORD.test(newPassword);
@@ -153,11 +156,13 @@ export default function SetPassword() {
       if (!isNewPassword) {
          setPasswordErrorMessage(errorMessage.PASSWORD_NOT_MATCH_REQUIREMENT);
          setNewPasswordError(true);
+         setConfirmPasswordError(false);
          return;
       }
       if (!isConfirmPassword) {
          setPasswordErrorMessage(errorMessage.PASSWORD_NOT_MATCH_REQUIREMENT);
          setConfirmPasswordError(true);
+         setNewPasswordError(false);
          return;
       }
       removeCookie();

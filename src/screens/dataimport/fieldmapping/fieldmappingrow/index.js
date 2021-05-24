@@ -23,12 +23,12 @@ const useStyles = makeStyles((theme) => ({
       position: "absolute",
       bottom: "60px",
       paddingTop: "5%",
-      width: "100%",
+      width: "100%"
    },
    masterColumn: {
       float: "left",
       display: "inline",
-      width: "100%",
+      width: "100%"
    },
    unitImg: {
       backgroundColor: "#00648d",
@@ -38,31 +38,31 @@ const useStyles = makeStyles((theme) => ({
       fontSize: "32px"
    },
    unitsDropdown: {
-      width: "100%",
+      width: "100%"
    },
    ignored: {
       width: "100%",
       "& .MuiOutlinedInput-input": {
-         color: "#00648D",
+         color: "#00648D"
       },
       "& .MuiInputLabel-root": {
-         color: "#00648D",
+         color: "#00648D"
       },
       "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
-         borderColor: "#00648D",
+         borderColor: "#00648D"
       },
       "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-input": {
-         color: "#00648D",
+         color: "#00648D"
       },
       "& .MuiInputLabel-root.Mui-focused": {
-         color: "#00648D",
+         color: "#00648D"
       },
       "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
-         borderColor: "#00648D",
+         borderColor: "#00648D"
       },
    },
    rootOrdinary: {
-      width: "100%",
+      width: "100%"
    },
    selectUnit: {
       background: "#00648d",
@@ -73,21 +73,21 @@ const useStyles = makeStyles((theme) => ({
       textTransform: "none",
       "&:hover": {
          backgroundColor: "#00648d",
-         color: "#ffffff",
+         color: "#ffffff"
       },
-      marginTop: "2px",
+      marginTop: "2px"
    },
    dashboardData: {
-      padding: "20px 35px 12px 35px",
+      padding: "20px 35px 12px 35px"
    },
    versionModel: {
       height: "100% !important",
-      marginTop: "-8px !important",
+      marginTop: "-8px !important"
    },
    errorMessageStyle: {
       color: "#ff0000",
       marginLeft: "5%"
-   },
+   }
 }));
 
 export default function FieldMappingRow(props) {
@@ -113,33 +113,15 @@ export default function FieldMappingRow(props) {
    const [showSubUnit, setShowSubUnit] = useState(false);
 
    useEffect(() => {
-      if (props?.fieldMappingFieldsData?.length > arrayConstants.initialOrder) {
-         let data = _.find(props?.fieldMappingFieldsData, {
-            excelColumn: props?.columnName,
-            sheetName: props?.sheetName,
-         });
-         if (isUndefined(data)) {
-            setFieldMappingData(data);
-            if (isEmptyNullUndefined(data?.excelUnitName) && isEmptyNullUndefined(data?.excelUnit)) {
-               setChooseSubUnit(data?.excelUnitName)
-            }
-         }
-      } else if (props?.fieldMappingData.length > arrayConstants.initialOrder) {
-         let data = _.find(props?.fieldMappingData, {
-            excelColumn: props?.columnName,
-            sheetName: props?.sheetName,
-         });
-         if (isUndefined(data)) {
-            setFieldMappingData(data);
-            if (isEmptyNullUndefined(data?.excelUnitName) && isEmptyNullUndefined(data?.excelUnit)) {
-               setChooseSubUnit(data?.excelUnitName)
-            }
-         }
-      }
       setUnits(props?.units);
       setMasterColumns(props?.masterList);
       setSheetName(props?.sheetName);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      if (isEmptyNullUndefined(props?.fieldMappingFieldsData)) {
+         return getFieldMappingDetails(props?.fieldMappingFieldsData);
+      }
+      if (isEmptyNullUndefined(props?.fieldMappingData)) {
+         return getFieldMappingDetails(props?.fieldMappingData);
+      }
    }, [props]);
 
    useEffect(() => {
@@ -150,11 +132,26 @@ export default function FieldMappingRow(props) {
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [props?.quantityList]);
 
+   const getFieldMappingDetails = (fieldMappingData) => {
+      if (fieldMappingData.length > arrayConstants.initialOrder) {
+         const data = _.find(fieldMappingData, {
+            excelColumn: props?.columnName,
+            sheetName: props?.sheetName,
+         });
+         if (isUndefined(data)) {
+            setFieldMappingData(data);
+            if (isEmptyNullUndefined(data?.excelUnitName) && isEmptyNullUndefined(data?.excelUnit)) {
+               setChooseSubUnit(data?.excelUnitName)
+            }
+         }
+      }
+   }
+
    const setFieldMappingData = (data) => {
       if (data?.unitType) {
          setSelectedUnit(selectedUnit !== displayText.DEFAULT_PARENTID ? selectedUnit : data?.unitType);
          setSelectedSubUnit(selectedSubUnit !== displayText.DEFAULT_PARENTID ? selectedSubUnit : data?.excelUnitName);
-         let excelSubunit = _.find(props?.getAllUnitList, function (subunit) {
+         const excelSubunit = _.find(props?.getAllUnitList, function (subunit) {
             return subunit.unitName === data?.excelUnitName;
          });
          setChosenSubunit(excelSubunit?.abbreviation ? excelSubunit?.abbreviation : chooseSubUnitAbbr);
@@ -166,15 +163,14 @@ export default function FieldMappingRow(props) {
       setSheetName(props?.sheetName);
       if (data?.tableColumn === displayText.FIELD_MAPPING_IGNORED) {
          setHighlightIgnore(true);
+         return;
       }
-      else {
-         setHighlightIgnore(false);
-      }
+      setHighlightIgnore(false);
    };
 
    const setSelectedUnitData = (event) => {
       event ? setChooseUnit(event.target.value) : setChooseUnit(chooseUnit);
-      let selectedUnitData = event.target.value === displayText.DEFAULT_PARENTID
+      const selectedUnitData = event.target.value === displayText.DEFAULT_PARENTID
          ? (null, setChosenSubunit(stringManipulationCheck.EMPTY_STRING), setChooseSubUnit(displayText.DEFAULT_PARENTID), setUnitQuantityList([]))
          : event.target.value;
       setShowSubUnit(true)
@@ -193,50 +189,46 @@ export default function FieldMappingRow(props) {
    };
 
    const saveUnits = () => {
-      let subUnitDetails = _.find(props?.quantityList, function (quantityListItem) {
+      const subUnitDetails = _.find(props?.quantityList, function (quantityListItem) {
          return quantityListItem.unitName === chooseSubUnit;
       });
-      let tableUnitDetails = _.find(props?.quantityList, function (quantitytableListItem) {
-         let abbreviationList = quantitytableListItem.abbreviation.split(stringManipulationCheck.PIPE_OPERATOR);
+      const tableUnitDetails = _.find(props?.quantityList, function (quantitytableListItem) {
+         const abbreviationList = quantitytableListItem.abbreviation.split(stringManipulationCheck.PIPE_OPERATOR);
          if (abbreviationList.some((element) => element === selectedTargetUnit)) {
             return quantitytableListItem.unitName
          }
       });
       if (!isEmptyNullUndefined(tableUnitDetails) && isEmptyNullUndefined(selectedTargetUnit) && isEmptyNullUndefined(subUnitDetails)) {
          dispatch(snackbarActionCreator.showFailureSnackbar(`${errorMessage.UNIT_MISMATCH} [${selectedTargetUnit}] ${errorMessage.UNIT_MISMATCH_TARGET} [${subUnitDetails?.abbreviation}]`));
+         return;
       }
-      else {
-         setSelectedUnit(chooseUnit);
-         setSelectedSubUnit(chooseSubUnit);
-         setChosenSubunit(chooseSubUnit === displayText.DEFAULT_PARENTID ? stringManipulationCheck.EMPTY_STRING : chooseSubUnitAbbr);
-         let selectedUnitData = chooseUnit === displayText.DEFAULT_PARENTID ? null : chooseUnit;
-         let selectedSubUnitData = chooseSubUnit === displayText.DEFAULT_PARENTID ? null : chooseSubUnit;
-         props.onValueChange(
-            props.columnName,
-            selectedUnitData,
-            selectedSubUnitData,
-            targetColumn,
-            selectedTargetUnit,
-            sheetName,
-            props.sheetIndex
-         );
-         setDialogOpen(false);
-      }
+      setSelectedUnit(chooseUnit);
+      setSelectedSubUnit(chooseSubUnit);
+      setChosenSubunit(chooseSubUnit === displayText.DEFAULT_PARENTID ? stringManipulationCheck.EMPTY_STRING : chooseSubUnitAbbr);
+      const selectedUnitData = chooseUnit === displayText.DEFAULT_PARENTID ? null : chooseUnit;
+      const selectedSubUnitData = chooseSubUnit === displayText.DEFAULT_PARENTID ? null : chooseSubUnit;
+      props.onValueChange(
+         props.columnName,
+         selectedUnitData,
+         selectedSubUnitData,
+         targetColumn,
+         selectedTargetUnit,
+         sheetName,
+         props.sheetIndex
+      );
+      setDialogOpen(false);
    }
 
    const setFieldMapValue = (event) => {
       event ? setTargetColumn(event.target.value) : setTargetColumn(targetColumn);
-      let selectedValue = event.target.value;
-      let columnName = selectedValue?.split(stringManipulationCheck.DOT_OPERATOR).pop();
-      let targetUnitData = _.find(masterColumns, { columnName: columnName === displayText.NULL ? JSON.parse(columnName) : columnName })?.units;
-      let unitOfMeasure = selectedUnit === displayText.DEFAULT_PARENTID ? null : selectedUnit;
-      let subUnit = selectedSubUnit === displayText.DEFAULT_PARENTID ? null : selectedSubUnit;
+      const selectedValue = event.target.value;
+      const columnName = selectedValue?.split(stringManipulationCheck.DOT_OPERATOR).pop();
+      const targetUnitData = _.find(masterColumns, { columnName: columnName === displayText.NULL ? JSON.parse(columnName) : columnName })?.units;
+      const unitOfMeasure = selectedUnit === displayText.DEFAULT_PARENTID ? null : selectedUnit;
+      const subUnit = selectedSubUnit === displayText.DEFAULT_PARENTID ? null : selectedSubUnit;
 
       if (event.target.value === displayText.FIELD_MAPPING_IGNORED) {
          setHighlightIgnore(true);
-      }
-      else {
-         setHighlightIgnore(false);
       }
       setSelectedTargetUnit(isUndefined(targetUnitData) ? targetUnitData : stringManipulationCheck.EMPTY_STRING);
       props.onValueChange(
@@ -276,10 +268,9 @@ export default function FieldMappingRow(props) {
       setChooseSubUnit(selectedSubUnit);
       if (isEmptyNullUndefined(selectedUnit) && selectedUnit !== displayText.DEFAULT_PARENTID) {
          props.fetchSubUnits(selectedUnit);
+         return;
       }
-      else {
-         setUnitQuantityList([]);
-      }
+      setUnitQuantityList([]);
    }
 
    const renderDialog = () => {
@@ -334,7 +325,7 @@ export default function FieldMappingRow(props) {
                               onChange={(event) => { setSelectedSubUnitData(event) }}
                               MenuProps={{ disableScrollLock: false }}
                               label={displayText.SUB_UNIT_OF_MEASURE}
-                              disabled={showSubUnit}>
+                              disabled={unitQuantityList[0]?.quantityName !== chooseUnit}>
                               {renderSubunitMenuItem()}
                            </Select>
                         </FormControl>
@@ -361,7 +352,7 @@ export default function FieldMappingRow(props) {
    }
 
    const renderTableColumnMenuItems = () => {
-      let tableData = [];
+      const tableData = [];
       tableData.push(<MenuItem value={displayText.DEFAULT_PARENTID}>{displayText.SELECT}</MenuItem>);
       masterColumns.forEach((column, idx) => {
          if (isNotEmpty(column.fieldAlias)) {
@@ -380,7 +371,7 @@ export default function FieldMappingRow(props) {
    };
 
    const renderUnitsMenuItem = () => {
-      let unitData = [];
+      const unitData = [];
       unitData.push(<MenuItem value={displayText.DEFAULT_PARENTID}>
          {units ? displayText.SELECT : displayText.LOADING}
       </MenuItem>);
@@ -397,9 +388,9 @@ export default function FieldMappingRow(props) {
    }
 
    const renderSubunitMenuItem = () => {
-      let subUnitData = [];
+      const subUnitData = [];
       subUnitData.push(<MenuItem value={displayText.DEFAULT_PARENTID}>
-         {unitQuantityList[0]?.quantityName === chooseUnit ? displayText.SELECT : displayText.LOADING}
+         {displayText.SELECT}
       </MenuItem>);
       unitQuantityList.forEach((unit) => {
          if (isNotEmpty(unit.unitName)) {
@@ -413,64 +404,80 @@ export default function FieldMappingRow(props) {
       return subUnitData;
    }
 
+   const renderColumns = () => {
+      return (
+         <>
+            <Grid item xs={gridWidth.ExcelColumnWidth}>
+               <TextField
+                  id="outlined-read-only-input"
+                  label={displayText.EXCEL_COLUMN}
+                  defaultValue={props.columnName}
+                  InputProps={{ readOnly: true }}
+                  className={classes.excelcolumn}
+                  variant="outlined"
+                  fullWidth={true} />
+            </Grid>
+            <Grid item xs={gridWidth.UnitsWidth}>
+               <TextField
+                  id="outlined-read-only-input"
+                  label={displayText.EXCEL_UNIT}
+                  value={chosenSubunit}
+                  InputProps={{ readOnly: true }}
+                  className={classes.excelcolumn}
+                  variant="outlined"
+                  fullWidth={true} />
+            </Grid>
+            <Grid item xs={gridWidth.ColumnWidth}>
+               <div className={classes.masterColumn}>
+                  <TextField
+                     value={targetColumn}
+                     className={highlightIgnore ? classes.ignored : classes.tableColumn}
+                     onChange={(event) => setFieldMapValue(event)}
+                     label={displayText.TABLE_COL}
+                     variant="outlined"
+                     fullWidth
+                     select>
+                     {renderTableColumnMenuItems()}
+                  </TextField>
+               </div>
+            </Grid>
+         </>
+      )
+   }
+
+   const renderUnits = () => {
+      return (
+         <>
+            <Grid item xs={gridWidth.UnitsWidth}>
+               <TextField
+                  id="outlined-read-only-input"
+                  label={displayText.TARGET_UNIT}
+                  value={selectedTargetUnit}
+                  InputProps={{ readOnly: true }}
+                  className={classes.excelcolumn}
+                  variant="outlined"
+                  fullWidth={true} />
+            </Grid>
+            <Grid item xs={gridWidth.UnitImageWidth}>
+               {selectedTargetUnit === displayText.NON_APPLICABLE || selectedTargetUnit === stringManipulationCheck.PERCENTAGE ? (
+                  <span className={'pointerNotAllowed'}>
+                     <SwapHorizontalCircleIcon title={displayText.SELECT_UNIT} className={classes.unitImg}></SwapHorizontalCircleIcon>
+                  </span>
+               ) : (
+                  <span className={'pointer'} onClick={(e) => chooseUnits()}>
+                     <SwapHorizontalCircleIcon title={displayText.SELECT_UNIT} className={classes.unitImg}></SwapHorizontalCircleIcon>
+                  </span>
+               )}
+            </Grid>
+         </>
+      )
+   }
+
    return (
       <Fragment>
-         <Grid item xs={gridWidth.ExcelColumnWidth}>
-            <TextField
-               id="outlined-read-only-input"
-               label={displayText.EXCEL_COLUMN}
-               defaultValue={props.columnName}
-               InputProps={{ readOnly: true }}
-               className={classes.excelcolumn}
-               variant="outlined"
-               fullWidth={true} />
-         </Grid>
-         <Grid item xs={gridWidth.UnitsWidth}>
-            <TextField
-               id="outlined-read-only-input"
-               label={displayText.EXCEL_UNIT}
-               value={chosenSubunit}
-               InputProps={{ readOnly: true }}
-               className={classes.excelcolumn}
-               variant="outlined"
-               fullWidth={true} />
-         </Grid>
-         <Grid item xs={gridWidth.ColumnWidth}>
-            <div className={classes.masterColumn}>
-               <TextField
-                  value={targetColumn}
-                  className={highlightIgnore ? classes.ignored : classes.tableColumn}
-                  onChange={(event) => setFieldMapValue(event)}
-                  label={displayText.TABLE_COL}
-                  variant="outlined"
-                  fullWidth
-                  select>
-                  {renderTableColumnMenuItems()}
-               </TextField>
-            </div>
-         </Grid>
-         <Grid item xs={gridWidth.UnitsWidth}>
-            <TextField
-               id="outlined-read-only-input"
-               label={displayText.TARGET_UNIT}
-               value={selectedTargetUnit}
-               InputProps={{ readOnly: true }}
-               className={classes.excelcolumn}
-               variant="outlined"
-               fullWidth={true} />
-         </Grid>
-         <Grid item xs={gridWidth.UnitImageWidth}>
-            {selectedTargetUnit === displayText.NON_APPLICABLE || selectedTargetUnit === stringManipulationCheck.PERCENTAGE ? (
-               <span className={'pointerNotAllowed'}>
-                  <SwapHorizontalCircleIcon title={displayText.SELECT_UNIT} className={classes.unitImg}></SwapHorizontalCircleIcon>
-               </span>
-            ) : (
-               <span className={'pointer'} onClick={(e) => chooseUnits()}>
-                  <SwapHorizontalCircleIcon title={displayText.SELECT_UNIT} className={classes.unitImg}></SwapHorizontalCircleIcon>
-               </span>
-            )}
-         </Grid>
-         { renderDialog()}
+         {renderColumns()}
+         {renderUnits()}
+         {renderDialog()}
       </Fragment>
    );
 }

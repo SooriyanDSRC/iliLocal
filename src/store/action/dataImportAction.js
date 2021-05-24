@@ -142,10 +142,33 @@ export const RevertSuccess = (value) => {
    }
 };
 
+const validateAllSheets = (resultData) => {
+   return resultData.map((sheetValues, sheetIndex) => {
+      const sheetData = Object.keys(sheetValues);
+      const allSheetValidations = sheetData.map((sheetFullName, sheetFullIndex) => {
+         const sheetName = _.head(sheetFullName.split(qcDashboardCheck.splitParameter));
+         const rows = resultData[sheetIndex][`${sheetName}${fieldCheck.mainDataCheck}`];
+         const grouped = _.groupBy(rows, fieldCheck.errorDescription);
+         return { grouped, sheetName };
+      });
+      return allSheetValidations;
+   });
+}
+
+const createQcFormData = (savedInspectionGuid, data) => {
+   const qcInputFormData = new FormData();
+   const qcInput = {};
+   qcInput.inspectionguid = savedInspectionGuid;
+   qcInput.ilifielddetails = JSON.parse(data.get(formDataInput.excelTemplate)).iliFieldDetails;
+   qcInput.SavedInspectionGuid = null;
+   qcInput.VersionId = null;
+   return qcInputFormData.append(formDataInput.qcInput, JSON.stringify(qcInput));
+}
+
 export const SaveTemplate = (url, data) => {
    return (dispatch) => {
       let iteration = fieldMappingSheetConfig.initialIterationValue;
-      let intervalData = setInterval(function () {
+      const intervalData = setInterval(function () {
          dispatch(DataSaveLoaderOverlay(true, loaderMessages[iteration] ?? _.last(loaderMessages)));
          iteration++;
       }, fieldMappingSheetConfig.timeIntervalLimit);
@@ -155,51 +178,37 @@ export const SaveTemplate = (url, data) => {
          .postData(url, data)
          .then((result) => {
             clearInterval(intervalData);
-            if (isStatusCodeValid(result, statusCode.CODE_200)) {
-               if (!_.includes(Object.keys(_.head(result.data)), displayText.SAVED_DETAILS)) {
-                  let resultData = result.data;
-                  let errorResult = resultData.map((sheetValues, sheetIndex) => {
-                     let sheetData = Object.keys(sheetValues);
-                     let allSheetValidations = sheetData.map((sheetFullName, sheetFullIndex) => {
-                        let sheetName = _.head(sheetFullName.split(qcDashboardCheck.splitParameter));
-                        let rows = resultData[sheetIndex][`${sheetName}${fieldCheck.mainDataCheck}`];
-                        let grouped = _.groupBy(rows, fieldCheck.errorDescription);
-                        return { grouped, sheetName };
-                     });
-                     return allSheetValidations;
-                  });
-                  dispatch(FieldMappingErrorValidation(errorResult));
-                  dispatch(DataSaveLoaderOverlay(false, displayText.SAVING_COMPLETED));
-               } else if (!_.head((_.head(result.data)).SavedDetails).inboundSave) {
-                  dispatch(showFailureSnackbar(errorMessage.UNABLE_TO_FETCH_QC_DASHBOARD));
-                  dispatch(DataSaveLoaderOverlay(false, displayText.SAVING_COMPLETED));
-               } else {
-                  let qcFormData = new FormData();
-                  let qcInput = {};
-                  let resultObj = _.head((_.head(result.data)).SavedDetails);
-                  let savedInspectionGuid = resultObj.inspectionGuid;
-                  qcInput.inspectionguid = savedInspectionGuid;
-                  qcInput.ilifielddetails = JSON.parse(data.get(formDataInput.excelTemplate)).iliFieldDetails;
-                  qcInput.SavedInspectionGuid = null;
-                  qcInput.VersionId = null;
-                  qcFormData.append(formDataInput.qcInput, JSON.stringify(qcInput));
-                  dispatch(DataSaveLoaderOverlay(false, displayText.SAVING_COMPLETED));
-                  dispatch(
-                     SavedDataQCDashboard(
-                        `${apiRouter.QUALITY_CONTROL_DASHBOARD}/${apiRouter.GET_QUALITY_CONTROL_DASHBOARD}`,
-                        qcFormData,
-                        savedInspectionGuid,
-                        data,
-                        resultObj
-                     )
-                  );
-                  dispatch(DataSaveLoaderOverlay(true, displayText.QC_DASHBOARD_LOADER));
-                  dispatch(SaveTemplateSuccess(true));
-               }
-            } else {
+            if (!isStatusCodeValid(result, statusCode.CODE_200)) {
                dispatch(DataSaveLoaderOverlay(false, displayText.SAVING_TEMPLATE_ERROR));
                dispatch(showFailureSnackbar(result));
+               return;
             }
+            if (!_.includes(Object.keys(_.head(result.data)), displayText.SAVED_DETAILS)) {
+               const errorResult = validateAllSheets(result.data);
+               dispatch(FieldMappingErrorValidation(errorResult));
+               dispatch(DataSaveLoaderOverlay(false, displayText.SAVING_COMPLETED));
+               return;
+            }
+            if (!_.head((_.head(result.data)).SavedDetails).inboundSave) {
+               dispatch(showFailureSnackbar(errorMessage.UNABLE_TO_FETCH_QC_DASHBOARD));
+               dispatch(DataSaveLoaderOverlay(false, displayText.SAVING_COMPLETED));
+               return
+            }
+            const resultObj = _.head((_.head(result.data)).SavedDetails);
+            const savedInspectionGuid = resultObj.inspectionGuid;
+            const qcFormData = createQcFormData(savedInspectionGuid, data);
+            dispatch(DataSaveLoaderOverlay(false, displayText.SAVING_COMPLETED));
+            dispatch(
+               SavedDataQCDashboard(
+                  `${apiRouter.QUALITY_CONTROL_DASHBOARD}/${apiRouter.GET_QUALITY_CONTROL_DASHBOARD}`,
+                  qcFormData,
+                  savedInspectionGuid,
+                  data,
+                  resultObj
+               )
+            );
+            dispatch(DataSaveLoaderOverlay(true, displayText.QC_DASHBOARD_LOADER));
+            dispatch(SaveTemplateSuccess(true));
          })
          .catch((e) => {
             clearInterval(intervalData);
