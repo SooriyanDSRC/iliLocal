@@ -74,6 +74,7 @@ export const UserLogin = (url, data) => (dispatch) => {
 
 export const GetRefreshToken = (url) => {
    return (dispatch) => {
+      dispatch(SetRefreshLoader(true));
       return serviceCall
          .cookiePostData(url, null)
          .then((result) => {
@@ -82,6 +83,7 @@ export const GetRefreshToken = (url) => {
                return;
             }
             getCookie(result.data?.token);
+            dispatch(RemoveRefreshLoader(false));
          })
          .catch((e) => {
             dispatch(showFailureSnackbar(e));
@@ -406,4 +408,12 @@ export const setLogoutLoader = (val) => {
 
 export const removeLogoutLoader = (val) => {
    return { type: userReducerConstant.REMOVE_LOGOUT_LOADER, value: val };
+}
+
+export const SetRefreshLoader = (val) => {
+   return { type: userReducerConstant.SET_REFRESH_LOADER, value: val };
+}
+
+export const RemoveRefreshLoader = (val) => {
+   return { type: userReducerConstant.REMOVE_REFRESH_LOADER, value: val }
 }

@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
    menuHeight: {
       maxHeight: '48 * 4.5',
       width: "200px"
-   },
+   }
 }));
 
 export default function ApplicationUserTable(props) {
@@ -206,8 +206,7 @@ export default function ApplicationUserTable(props) {
             isCurrentUser={deleteSuper}
             handleClose={handleCloseEditAppUserDialog}
             appUserDetails={actionAppUser}
-            action={displayText.EDIT}
-         />
+            action={displayText.EDIT} />
       </div >
    );
 }

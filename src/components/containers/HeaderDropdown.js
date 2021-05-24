@@ -109,19 +109,17 @@ const HeaderDropdown = () => {
          setLogout(false);
          await deleteFile(fileName);
          dispatch(dataImportActionCreator.SetFileName(stringManipulationCheck.EMPTY_STRING));
-         triggerRevokeToken();
+         return triggerRevokeToken();
       }
-      else {
-         setSelectedClient(selectedClientCache);
-         setDataImportDialog(false);
-         deleteFile(fileName);
-         dispatch(dataImportActionCreator.SetFileName(stringManipulationCheck.EMPTY_STRING));
-         dispatch(dataImportActionCreator.clearSelectedData());
-         let selectedClientDetails = _.filter(clientsList, function (client) {
-            return client.clientName === selectedClientCache
-         });
-         userPreferenceCall(selectedClientDetails, displayText.CONTINUE_CLICK);
-      }
+      setSelectedClient(selectedClientCache);
+      setDataImportDialog(false);
+      deleteFile(fileName);
+      dispatch(dataImportActionCreator.SetFileName(stringManipulationCheck.EMPTY_STRING));
+      dispatch(dataImportActionCreator.clearSelectedData());
+      let selectedClientDetails = _.filter(clientsList, function (client) {
+         return client.clientName === selectedClientCache
+      });
+      userPreferenceCall(selectedClientDetails, displayText.CONTINUE_CLICK);
    };
 
    const onDecline = () => {
@@ -136,7 +134,7 @@ const HeaderDropdown = () => {
 
    const handleSelectClient = (selectedClientOption) => {
       if (!isNotEmptyNullUndefined(selectedClientOption)) { return; }
-      let selectedClientDetails = _.filter(clientsList, function (client) {
+      const selectedClientDetails = _.filter(clientsList, function (client) {
          return client.clientName === selectedClientOption
       });
       if (!dataImportScreenCheck()) {
@@ -171,7 +169,7 @@ const HeaderDropdown = () => {
          dispatch(dataImportActionCreator.clearVendorAndOperationalArea(null));
          dispatch(dataImportActionCreator.clearQCDashboardData());
       }
-      let usersGuid = JSON.parse(decryptData(sessionStorageKey.USER_DETAILS))?.usersGuid;
+      const usersGuid = JSON.parse(decryptData(sessionStorageKey.USER_DETAILS))?.usersGuid;
       const prefUrl = `${apiRouter.COMMON}/${apiRouter.COMMON_USER_PREFERENCE}?${displayText.USER_GUID}=${usersGuid}&${displayText.CLIENTSGUID}=${selectedClientDetails[arrayConstants.initialOrder]?.clientsGuid}`;
       dispatch(actionCreator.GetPreference(prefUrl));
       history.push(apiRouter.MY_PROFILE);

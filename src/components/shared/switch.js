@@ -9,7 +9,7 @@ const useStyles = makeStyles((theme) => ({
     width: 42,
     height: 26,
     padding: 0,
-    margin: theme.spacing(3),
+    margin: theme.spacing(3)
   },
   switchBase: {
     padding: 1,
@@ -19,18 +19,18 @@ const useStyles = makeStyles((theme) => ({
       '& + $track': {
         background: '#d3dadd',
         opacity: 1,
-        border: 'none',
+        border: 'none'
       },
     },
     '& + $track': {
       background: '#fd9b9b',
       opacity: 1,
-      border: 'none',
+      border: 'none'
     },
     '&$focusVisible $thumb': {
       color: '#52d869',
-      border: '6px solid #ffffff',
-    },
+      border: '6px solid #ffffff'
+    }
   },
   defaultSwitchBase: {
     padding: 1,
@@ -40,9 +40,9 @@ const useStyles = makeStyles((theme) => ({
       '& + $track': {
         background: '#d3dadd',
         opacity: 1,
-        border: 'none',
-      },
-    },
+        border: 'none'
+      }
+    }
   },
   defaultThumb: {
     width: 24,
@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
     border: `1px solid ${theme.palette.grey[400]}`,
     backgroundColor: theme.palette.grey[50],
     opacity: 1,
-    transition: theme.transitions.create(['background-color', 'border']),
+    transition: theme.transitions.create(['background-color', 'border'])
   },
   checked: {},
   focusVisible: {},
@@ -87,15 +87,13 @@ export default function SwitchComponent(props) {
     if (isActive && props?.activeText) {
       return (<span className={classes.qcFont}>{props?.activeText}</span>);
     }
-    else if (isActive && !props?.activeText) {
+    if (isActive && !props?.activeText) {
       return displayText.ACTIVE;
     }
-    else if (!isActive && props?.inActiveText) {
+    if (!isActive && props?.inActiveText) {
       return (<span className={classes.qcFont}>{props?.inActiveText}</span>);
     }
-    else {
-      return displayText.IN_ACTIVE;
-    }
+    return displayText.IN_ACTIVE;
   }
 
   return (
@@ -114,9 +112,7 @@ export default function SwitchComponent(props) {
             checked: classes.checked,
           }}
           checked={isActive}
-          onChange={handleSwitchChange}
-        />
-      }
-    />
+          onChange={handleSwitchChange} />
+      } />
   );
 }

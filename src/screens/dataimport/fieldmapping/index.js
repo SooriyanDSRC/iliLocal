@@ -18,8 +18,8 @@ const useStyles = makeStyles((theme) => ({
       paddingBottom: "20px"
    },
    fieldMapContainer: {
-      paddingTop: "10px",
-   },
+      paddingTop: "10px"
+   }
 }));
 
 function Fieldmapping(props, ref) {
@@ -67,34 +67,36 @@ function Fieldmapping(props, ref) {
    const fetchFieldMapping = async () => {
       if (props?.fieldMappingFieldsData?.length > fieldMappingSheetConfig.fieldMapLengthCheck) {
          setRelation(props?.fieldMappingFieldsData);
-      } else if (matchingDetails?.MatchedColumns && matchingDetails.MatchedColumns.length > fieldMappingSheetConfig.fieldMapLengthCheck) {
+         return;
+      }
+      if (matchingDetails?.MatchedColumns && matchingDetails.MatchedColumns.length > fieldMappingSheetConfig.fieldMapLengthCheck) {
          props.sheetData.forEach((sheetDataValue, sheetDataIndex) => {
             sheetDataValue && sheetDataValue.dataColumns && sheetDataValue.dataColumns.forEach((column, index) => {
-               let matchedColumn = _.find(matchingDetails.MatchedColumns, { excelColumn: column.name });
+               const matchedColumn = _.find(matchingDetails.MatchedColumns, { excelColumn: column.name });
                if (isNullUndefined(matchedColumn) && isNullUndefined(matchedColumn.tableColumn)) {
-                  let columnArray = matchedColumn?.tableColumn?.split(stringManipulationCheck.DOT_OPERATOR);
-                  let columnName = _.last(columnArray);
-                  let tableName = _.head(columnArray);
-                  let matchedUnit = _.find(props?.masterList, { columnName: columnName, tableName: tableName })?.units;
+                  const columnArray = matchedColumn?.tableColumn?.split(stringManipulationCheck.DOT_OPERATOR);
+                  const columnName = _.last(columnArray);
+                  const tableName = _.head(columnArray);
+                  const matchedUnit = _.find(props?.masterList, { columnName: columnName, tableName: tableName })?.units;
                   setFieldMapValue(column.name, matchedColumn.unitType, matchedColumn.excelUnitName, matchedColumn.tableColumn,
                      matchedUnit, props.sheetData[sheetDataIndex].sheetName, sheetDataIndex);
                }
             });
          });
-      } else {
-         setRelation([]);
+         return;
       }
+      setRelation([]);
    }
 
    const setFieldMapValue = (excelColumn, excelUnit, excelSubUnit, targetColumn, targetUnit, sheetName, sheetIndex) => {
-      let currentRelation = overallRelation;
-      let currentSheetObj = clearSelectedUnit;
-      let obj = {};
-      let subUnitDetails = _.find(allUnits, function (quantityListItem) {
+      const currentRelation = overallRelation;
+      const currentSheetObj = clearSelectedUnit;
+      const obj = {};
+      const subUnitDetails = _.find(allUnits, function (quantityListItem) {
          return quantityListItem.unitName === excelSubUnit;
       });
-      let tableUnitDetails = _.find(allUnits, function (quantitytableListItem) {
-         let abbreviationList = quantitytableListItem.abbreviation.split(stringManipulationCheck.PIPE_OPERATOR);
+      const tableUnitDetails = _.find(allUnits, function (quantitytableListItem) {
+         const abbreviationList = quantitytableListItem.abbreviation.split(stringManipulationCheck.PIPE_OPERATOR);
          if (abbreviationList.some((element) => element === targetUnit)) {
             return quantitytableListItem.unitName
          }
@@ -111,10 +113,12 @@ function Fieldmapping(props, ref) {
       obj[displayText.TABLE_UNIT] = targetUnit;
       if (!_.find(currentRelation, { excelColumn: excelColumn, sheetName: sheetName })) {
          currentRelation.push(obj);
-      } else {
-         let index = _.findIndex(currentRelation, { excelColumn: excelColumn, sheetName: sheetName });
-         currentRelation.splice(index, arrayConstants.currentRelationSplice, obj);
+         setRelation(currentRelation);
+         props.mappedData(currentRelation);
+         return;
       }
+      const index = _.findIndex(currentRelation, { excelColumn: excelColumn, sheetName: sheetName });
+      currentRelation.splice(index, arrayConstants.currentRelationSplice, obj);
       setRelation(currentRelation);
       props.mappedData(currentRelation);
    };
@@ -130,7 +134,6 @@ function Fieldmapping(props, ref) {
          dispatch(actionCreator.GetQuantityList(url));
       }
    }
-
 
    const renderTabComponent = (tabPanel) => {
       return allSheetData?.map((currentSheet, sheetIndex) => {

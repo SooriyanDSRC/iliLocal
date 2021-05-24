@@ -247,7 +247,7 @@ export const displayText = {
    NUMBERS_0_9: "Atleast one number (0 - 9)",
    NULL: "null",
    Next: "Next",
-   OD_COLUMN: "OUTSIDE_DIAMETER",
+   OD_COLUMN: "OUTER_DIAMETER",
    OK: "OK",
    OLD_PASSWORD: "Old Password",
    OPERATIONAL_AREA: "Operational Area",

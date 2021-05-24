@@ -886,8 +886,8 @@ export default function DataImport() {
             columns.push(sheetValue.key);
          });
       });
-      let formData = new FormData();
-      let jsonData = {};
+      const formData = new FormData();
+      const jsonData = {};
       jsonData[displayText.SELECTED_VENDOR_NAME] = isNotEmptyNullUndefined(summaryList) ? _.find(summaryList.iliToolVendorClNames, { iliToolVendorClGuid: summaryData.toolVendorCl }).name : null;
       jsonData[displayText.VENDOR_ID] = summaryData.toolVendorCl;
       jsonData[displayText.EXCEL_COLUMNS] = columns;
@@ -1353,7 +1353,7 @@ export default function DataImport() {
          return dropDownData
       }
       dropDownData.push(<MenuItem value={displayText.DEFAULT_PARENTID}>
-         {displayText.LOADING}
+         {displayText.SELECT}
       </MenuItem>)
       return dropDownData
    }
@@ -2326,7 +2326,6 @@ export default function DataImport() {
                      activeStep={activeStep} />
                   <Fieldmapping
                      ref={childRef}
-                     data={fieldMappingFieldsData}
                      fieldMappingFieldsData={fieldMappingFieldsData}
                      getFieldMappingData={getFieldMappingData}
                      sheetData={excelData}
