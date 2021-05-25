@@ -162,7 +162,8 @@ const createQcFormData = (savedInspectionGuid, data) => {
    qcInput.ilifielddetails = JSON.parse(data.get(formDataInput.excelTemplate)).iliFieldDetails;
    qcInput.SavedInspectionGuid = null;
    qcInput.VersionId = null;
-   return qcInputFormData.append(formDataInput.qcInput, JSON.stringify(qcInput));
+   qcInputFormData.append(formDataInput.qcInput, JSON.stringify(qcInput));
+   return qcInputFormData;
 }
 
 export const SaveTemplate = (url, data) => {

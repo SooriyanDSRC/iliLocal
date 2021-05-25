@@ -30,6 +30,7 @@ const DataEntry = (props, ref) => {
   const [beginDate, setBeginDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [reportDate, setReportDate] = useState(new Date());
+  const [reportDateCopy, setReportDateCopy] = useState(reportDate);
   const [importDate, setImportDate] = useState(new Date());
   const [selectedToolType, setSelectedToolType] = useState(displayText.DEFAULT_PARENTID);
   const [selectedToolVendor, setSelectedToolVendor] = useState(displayText.DEFAULT_PARENTID);
@@ -60,10 +61,12 @@ const DataEntry = (props, ref) => {
     switch (type) {
       case displayText.BEGIN_DATE: {
         setBeginDate(e);
+        (reportDate === reportDateCopy || reportDate === endDate) && setReportDate(e); 
         setEndDate(e);
         return;
       }
       case displayText.END_DATE:
+        (reportDate === reportDateCopy || reportDate === endDate) && setReportDate(e); 
         return setEndDate(e);
       case displayText.IMPORT_DATE:
         return setImportDate(e);
@@ -221,16 +224,6 @@ const DataEntry = (props, ref) => {
                 }
               />
             </FormControl>
-            {/* <KeyboardDatePicker
-              disableToolbar
-              variant="inline"
-              margin="normal"
-              format={displayText.DATE_FORMAT}
-              label={displayText.BEGIN_DATE}
-              className={(commonClasses.textField, "DataEntryDateTextField")}
-              InputLabelProps={{ shrink: true }}
-              onChange={(event) => handleInputChange(displayText.BEGIN_DATE, event)}
-              value={beginDate} /> */}
           </Grid>
           <Grid item xs={dataImportGrid.DataEntryColumn}>
           <FormControl
@@ -254,15 +247,6 @@ const DataEntry = (props, ref) => {
                 }
               />
             </FormControl>
-            {/* <KeyboardDatePicker
-              margin="normal"
-              format={displayText.DATE_FORMAT}
-              label={displayText.END_DATE}
-              className={(commonClasses.textField, "DataEntryDateTextField")}
-              InputLabelProps={{ shrink: true }}
-              minDate={beginDate}
-              onChange={(event) => handleInputChange(displayText.END_DATE, event)}
-              value={endDate} /> */}
           </Grid>
           <Grid item xs={dataImportGrid.DataEntryColumn}>
           <FormControl
@@ -286,14 +270,6 @@ const DataEntry = (props, ref) => {
                 }
               />
             </FormControl>
-              {/* <KeyboardDatePicker
-                margin="normal"
-                format={displayText.DATE_FORMAT}
-                label={displayText.IMPORT_DATE}
-                className={(commonClasses.textField, "DataEntryDateTextField")}
-                InputLabelProps={{ shrink: true }}
-                onChange={(event) => handleInputChange(displayText.IMPORT_DATE, event)}
-                value={importDate} /> */}
           </Grid>
           <Grid item xs={dataImportGrid.DataEntryColumn}>
           <FormControl
@@ -317,14 +293,6 @@ const DataEntry = (props, ref) => {
                 }
               />
             </FormControl>
-            {/* <KeyboardDatePicker
-              margin="normal"
-              format={displayText.DATE_FORMAT}
-              label={displayText.REPORT_DATE}
-              className={(commonClasses.textField, "DataEntryDateTextField")}
-              InputLabelProps={{ shrink: true }}
-              onChange={(event) => handleInputChange(displayText.REPORT_DATE, event)}
-              value={reportDate} /> */}
           </Grid>
         </MuiPickersUtilsProvider>
       </>
