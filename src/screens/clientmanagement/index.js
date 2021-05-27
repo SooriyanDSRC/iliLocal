@@ -130,13 +130,13 @@ export default function Clients() {
    };
 
    const GetClientRoles = () => {
-      let client_Roles = _.find(
+      const clientRoles = _.find(
          JSON.parse(decryptData(sessionStorageKey.USER_ROLES)),
          (clientRole) => {
             return clientRole.name === displayText.CLIENT_MANAGEMENT;
          }
       );
-      setClientRoles(client_Roles);
+      setClientRoles(clientRoles);
    };
 
    useEffect(() => {

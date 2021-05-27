@@ -174,8 +174,7 @@ export default function ClientTable(props) {
                            <TableSortLabel
                               active={orderBy === cHeader.sort}
                               direction={getDirection(cHeader, orderBy, isAsc)}
-                              onClick={(e) => handleRequestSort(e, cHeader.sort)}
-                           >
+                              onClick={(e) => handleRequestSort(e, cHeader.sort)}>
                               {cHeader.header}
                            </TableSortLabel>
                         </TableCell>

@@ -139,6 +139,7 @@ export default function Login() {
    useEffect(() => {
       let UserDetail = JSON.parse(decryptData(sessionStorageKey.USER_DETAILS));
       if (!_.isNull(UserDetail) && isCookieValid()) {
+         //isNotempty check would come
          const url = `${apiRouter.FEATURES}`;
          dispatch(actionCreator.GetUserFeatures(url));
          history.push(apiRouter.MY_PROFILE);
@@ -167,7 +168,7 @@ export default function Login() {
                         </InputLabel>
                         <OutlinedInput
                            id="outlined-adornment-email"
-                           type="text"
+                           type={displayText.TEXT}
                            error={loginInputEmailError}
                            value={emailId}
                            onChange={(e) => handleInputChange(displayText.NAME, e)}

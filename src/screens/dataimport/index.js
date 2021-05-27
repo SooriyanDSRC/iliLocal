@@ -450,9 +450,9 @@ export default function DataImport() {
                return field.tableColumn === `${displayText.ILI_DATA_TABLE}.${displayText.FEATURE_TYPE_COLUMN}`
             })
          );
-            setFeatureTypeRow(isFeatureTypeMapped);
-            setFeatureTypeDropDown(isFeatureTypeMapped);
-            isFeatureTypeMapped ? checkFeatureTypes() : checkFeatureTypes(displayText.DEFAULT_PARENTID);
+         setFeatureTypeRow(isFeatureTypeMapped);
+         setFeatureTypeDropDown(isFeatureTypeMapped);
+         isFeatureTypeMapped ? checkFeatureTypes() : checkFeatureTypes(displayText.DEFAULT_PARENTID);
          let maopColumnField = _.find(fieldMappingFiltered, { tableColumn: `${displayText.ILI_DATA_TABLE}.${displayText.MAOP_COLUMN}` });
          let smysColumnField = _.find(fieldMappingFiltered, { tableColumn: `${displayText.ILI_DATA_TABLE}.${displayText.SMYS_COLUMN}` });
          let odColumnField = _.find(fieldMappingFiltered, { tableColumn: `${displayText.ILI_DATA_TABLE}.${displayText.OD_COLUMN}` });
@@ -689,14 +689,14 @@ export default function DataImport() {
 
    useEffect(() => {
       window.addEventListener('beforeunload', function (event) {
-         event.preventDefault();
+         // event.preventDefault();
          let userDetail = JSON.parse(decryptData(sessionStorageKey.USER_DETAILS));
          if (isNotNull(userDetail) && isNotEmptyNullUndefined(fileGuid)) {
             let url = `${apiRouter.FILE_UPLOAD}/${apiRouter.UPLOAD_CANCEL}?${apiRouter.DELETE_ORIGINAL_FILE}=${false}&${apiRouter.FILE_NAME}=${fileGuid}`;
             serviceCall.deleteFileCall(url);
             setFileGuid(stringManipulationCheck.EMPTY_STRING);
          }
-         event.returnValue = "";
+         // event.returnValue = "";
       });
    }, [fileGuid])
 
@@ -1027,27 +1027,27 @@ export default function DataImport() {
             );
             e.target.value = null;
             return (stringManipulationCheck.EMPTY_STRING);
-         } 
-            setConfirmCancel(false);
-            resetChunkProperties();
-            const _file = targetFile;
-            setFile({
-               fileObj: targetFile,
-               fileName: targetFile.name,
-            });
-            setFileSize(targetFile.size);
-            setFileName(targetFile.name);
-            const totalCount =
+         }
+         setConfirmCancel(false);
+         resetChunkProperties();
+         const _file = targetFile;
+         setFile({
+            fileObj: targetFile,
+            fileName: targetFile.name,
+         });
+         setFileSize(targetFile.size);
+         setFileName(targetFile.name);
+         const totalCount =
             targetFile.size % chunkSize === fieldMappingSheetConfig.defaultFileSize
-                  ? targetFile.size / chunkSize
-                  : Math.floor(targetFile.size / chunkSize) + fieldMappingSheetConfig.counterInitialValue; // Total count of chunks will have been upload to finish the file
-            setChunkCount(totalCount);
-            setFileToBeUpload(targetFile);
-            e.target.value = null;
-            const fileId = uuidv4() + stringManipulationCheck.DOT_OPERATOR + _file.name.split(stringManipulationCheck.DOT_OPERATOR).pop();
-            setFileGuid(fileId);
-            dispatch(dataImportActionCreator.SetFileName(fileId));
-            encryptData(fileId, displayText.FILE_NAME);
+               ? targetFile.size / chunkSize
+               : Math.floor(targetFile.size / chunkSize) + fieldMappingSheetConfig.counterInitialValue; // Total count of chunks will have been upload to finish the file
+         setChunkCount(totalCount);
+         setFileToBeUpload(targetFile);
+         e.target.value = null;
+         const fileId = uuidv4() + stringManipulationCheck.DOT_OPERATOR + _file.name.split(stringManipulationCheck.DOT_OPERATOR).pop();
+         setFileGuid(fileId);
+         dispatch(dataImportActionCreator.SetFileName(fileId));
+         encryptData(fileId, displayText.FILE_NAME);
          setIliDataSummary(stringManipulationCheck.EMPTY_STRING);
       }
    };

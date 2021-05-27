@@ -83,7 +83,7 @@ export default function SwitchComponent(props) {
     props.handleSwitchChange(e.target.checked);
   };
 
-  const labelData = () => {
+  const renderLabelData = () => {
     if (isActive && props?.activeText) {
       return (<span className={classes.qcFont}>{props?.activeText}</span>);
     }
@@ -99,7 +99,7 @@ export default function SwitchComponent(props) {
   return (
     <FormControlLabel
       className={props.switchClass}
-      label={labelData()}
+      label={renderLabelData()}
       labelPlacement='start'
       control={
         <Switch

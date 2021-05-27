@@ -36,9 +36,9 @@ export const deleteFile = (fileName) => {
 export const fetchUnitConversion = async (value, currentUnit, targetUnit, unitType) => {
    const url = `${apiRouter.FIELD_MAPPING}/${apiRouter.GET_CONVERTED_VALUE}?value=${value}&sourceUnit=${currentUnit}&targetUnit=${targetUnit}&unitType=${unitType}`;
    if (isNotEmptyNullUndefined(value) &&
-   isNotEmptyNullUndefined(currentUnit) &&
-   isNotEmptyNullUndefined(targetUnit) &&
-   isNotEmptyNullUndefined(unitType) &&
+      isNotEmptyNullUndefined(currentUnit) &&
+      isNotEmptyNullUndefined(targetUnit) &&
+      isNotEmptyNullUndefined(unitType) &&
       currentUnit !== displayText.DEFAULT_PARENTID) {
       return await serviceCall.getAllData(url);
    }
@@ -94,11 +94,11 @@ export function leftTrim(data) {
 }
 
 export function convertToISODate(date) {
-   return moment(date).format(displayText.ISO_DATE_FORMAT);
+   return moment.utc(date).format(displayText.ISO_DATE_FORMAT);
 }
 
 export function formatDate(date) {
-   return isNotEmptyNullUndefined(date) ? moment(date).format(displayText.YEAR_MONTH_DAY_FORMAT) : stringManipulationCheck.EMPTY_STRING;
+   return isNotEmptyNullUndefined(date) ? moment.utc(date) : stringManipulationCheck.EMPTY_STRING;
 }
 
 export function isDotEmpty(data) {
@@ -223,12 +223,10 @@ export function isCookieValid() {
       if (isNotEmptyNullUndefined(expires) && Date.now() <= expires * tokenValidity.convertToMilliSeconds) {
          return true;
       }
-      sessionStorage.clear();
-      localStorage.clear();
+      clearStorageItems();
       return false;
    }
-   sessionStorage.clear();
-   localStorage.clear();
+   clearStorageItems();
    return false;
 }
 
@@ -264,4 +262,9 @@ export function removeDoubleQuotes(value) {
 
 export function removeCookie() {
    document.cookie = `${sessionStorageKey.TOKEN}=`
+}
+
+export function clearStorageItems() {
+   sessionStorage.clear();
+   return localStorage.clear();
 }

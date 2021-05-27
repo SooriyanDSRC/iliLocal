@@ -409,7 +409,7 @@ export default function QcDashboard(props) {
             </>
          );
       }
-      if ((isAccordionLengthValid || isNotEmptyNullUndefined(accordionValue[dataIndex]) || isDataTypeString) && !isOpenParenthesisIncluded && !isCloseParenthesisIncluded) {
+      if ((isAccordionLengthValid || isEmptyNullUndefined(accordionValue[dataIndex]) || isDataTypeString) && !isOpenParenthesisIncluded && !isCloseParenthesisIncluded) {
          return (
             <>
                <CheckBoxSharpIcon className={classes.doneIconBg} /> {dataIndex}

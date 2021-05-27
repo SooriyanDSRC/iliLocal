@@ -5,7 +5,7 @@ import axios from 'axios';
 import { statusCode, apiRouter, sessionStorageKey, stringManipulationCheck, tokenValidity } from '../../constant';
 import * as actionCreator from "../../store/action/userAction";
 import { useDispatch, useSelector } from "react-redux";
-import { isNotEmptyNullUndefined, isNotNull,decryptData, isNullorUndefined, isCookieValid } from '../shared/helper';
+import { isNotEmptyNullUndefined, isNotNull, decryptData, isNullorUndefined, isCookieValid, clearStorageItems } from '../shared/helper';
 import { arrayConstants } from '../../arrayconstants';
 
 export default function Layout() {
@@ -17,7 +17,7 @@ export default function Layout() {
       startRefreshTokenTimer();
       setInterval(() => checkUserLoggedIn(), tokenValidity.checkUserDetailsInterval);
       // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [isRefreshCallTriggered]);
+   }, []);
 
    const startRefreshTokenTimer = () => {
       if (isNotEmptyNullUndefined(document.cookie)) {
@@ -31,8 +31,7 @@ export default function Layout() {
 
    const checkUserLoggedIn = () => {
       if (isNullorUndefined(JSON.parse(decryptData(sessionStorageKey.USER_DETAILS)))) {
-         sessionStorage.clear();
-         localStorage.clear();
+         clearStorageItems();
          window.location.reload();
          history.push(apiRouter.LOGIN);
       }
@@ -49,8 +48,7 @@ export default function Layout() {
       return response;
    }, function (error) {
       if (statusCode.CODE_401 === error.response.status) {
-         sessionStorage.clear();
-         localStorage.clear();
+         clearStorageItems();
          window.location.reload();
          history.push(apiRouter.LOGIN);
          return;

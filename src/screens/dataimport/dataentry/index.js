@@ -1,10 +1,13 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
-import { Grid, TextField, MenuItem, InputLabel, Select, FormControl, Button, Paper, OutlinedInput, InputAdornment, IconButton } from "@material-ui/core";
+import {
+  Grid, TextField, MenuItem, InputLabel, Select, FormControl,
+  Button, Paper, OutlinedInput, InputAdornment, IconButton
+} from "@material-ui/core";
 import { displayText, stringManipulationCheck } from "../../../constant";
 import { isNotEmptyNullUndefined, convertToISODate, formatDate, checkFieldLength, isNotNull } from "../../../components/shared/helper";
 import { fieldMappingSheetConfig } from "../../../dataimportconstants";
 import { dataImportGrid } from "../../../gridconstants";
-import { KeyboardDatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
+import { MuiPickersUtilsProvider } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import DataEntryStyles from "../../../scss/dataEntryStyles";
 import Draggable from 'react-draggable';
@@ -30,7 +33,6 @@ const DataEntry = (props, ref) => {
   const [beginDate, setBeginDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [reportDate, setReportDate] = useState(new Date());
-  const [reportDateCopy, setReportDateCopy] = useState(reportDate);
   const [importDate, setImportDate] = useState(new Date());
   const [selectedToolType, setSelectedToolType] = useState(displayText.DEFAULT_PARENTID);
   const [selectedToolVendor, setSelectedToolVendor] = useState(displayText.DEFAULT_PARENTID);
@@ -61,12 +63,12 @@ const DataEntry = (props, ref) => {
     switch (type) {
       case displayText.BEGIN_DATE: {
         setBeginDate(e);
-        (reportDate === reportDateCopy || reportDate === endDate) && setReportDate(e); 
+        setReportDate(e);
         setEndDate(e);
         return;
       }
       case displayText.END_DATE:
-        (reportDate === reportDateCopy || reportDate === endDate) && setReportDate(e); 
+        setReportDate(e);
         return setEndDate(e);
       case displayText.IMPORT_DATE:
         return setImportDate(e);
@@ -186,29 +188,29 @@ const DataEntry = (props, ref) => {
 
   const convertDate = (date) => {
     return moment(date).format('LL');
-  }
+  };
 
   const renderDates = () => {
     return (
       <>
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
           <Grid item xs={dataImportGrid.DataEntryColumn}>
-            <DatePickerDialog 
-            showDialog={showDatePickerDialog} 
-            heading={datePickerDialogTitle} 
-            openDialog={handleDatePickerDialogOpen} 
-            onSave={onSaveDate} 
-            onCancel={onCancelDate} 
-            inputChange={handleInputChange}
-            minimalDate={datePickerMinDate}
-            dateValue={currentDateValue}
+            <DatePickerDialog
+              showDialog={showDatePickerDialog}
+              heading={datePickerDialogTitle}
+              openDialog={handleDatePickerDialogOpen}
+              onSave={onSaveDate}
+              onCancel={onCancelDate}
+              inputChange={handleInputChange}
+              minimalDate={datePickerMinDate}
+              dateValue={currentDateValue}
             />
             <FormControl
               variant="outlined"
               className={commonClasses.formControl}
               onClick={(e) => handleDatePickerDialogOpen(displayText.BEGIN_DATE, null, beginDate)}>
               <InputLabel htmlFor="outlined-age-native-simple" className="formControlLabel">
-              {displayText.BEGIN_DATE}
+                {displayText.BEGIN_DATE}
               </InputLabel>
               <OutlinedInput
                 id="outlined-adornment-password"
@@ -226,12 +228,12 @@ const DataEntry = (props, ref) => {
             </FormControl>
           </Grid>
           <Grid item xs={dataImportGrid.DataEntryColumn}>
-          <FormControl
+            <FormControl
               variant="outlined"
               className={commonClasses.formControl}
-              onClick={(e) => handleDatePickerDialogOpen(displayText.END_DATE,beginDate,endDate)}>
+              onClick={(e) => handleDatePickerDialogOpen(displayText.END_DATE, beginDate, endDate)}>
               <InputLabel htmlFor="outlined-age-native-simple" className="formControlLabel">
-              {displayText.END_DATE}
+                {displayText.END_DATE}
               </InputLabel>
               <OutlinedInput
                 id="outlined-adornment-password"
@@ -249,12 +251,12 @@ const DataEntry = (props, ref) => {
             </FormControl>
           </Grid>
           <Grid item xs={dataImportGrid.DataEntryColumn}>
-          <FormControl
+            <FormControl
               variant="outlined"
               className={commonClasses.formControl}
-              onClick={(e) => handleDatePickerDialogOpen(displayText.IMPORT_DATE,null,importDate)}>
+              onClick={(e) => handleDatePickerDialogOpen(displayText.IMPORT_DATE, null, importDate)}>
               <InputLabel htmlFor="outlined-age-native-simple" className="formControlLabel">
-              {displayText.IMPORT_DATE}
+                {displayText.IMPORT_DATE}
               </InputLabel>
               <OutlinedInput
                 id="outlined-adornment-password"
@@ -272,12 +274,12 @@ const DataEntry = (props, ref) => {
             </FormControl>
           </Grid>
           <Grid item xs={dataImportGrid.DataEntryColumn}>
-          <FormControl
+            <FormControl
               variant="outlined"
               className={commonClasses.formControl}
-              onClick={(e) => handleDatePickerDialogOpen(displayText.REPORT_DATE,null,reportDate)}>
+              onClick={(e) => handleDatePickerDialogOpen(displayText.REPORT_DATE, null, reportDate)}>
               <InputLabel htmlFor="outlined-age-native-simple" className="formControlLabel">
-              {displayText.REPORT_DATE}
+                {displayText.REPORT_DATE}
               </InputLabel>
               <OutlinedInput
                 id="outlined-adornment-password"

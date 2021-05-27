@@ -6,7 +6,7 @@ import {
    InputLabel, InputAdornment, Modal, Backdrop, Fade
 } from "@material-ui/core";
 import TextRecord from "../../components/shared/textRecord";
-import { isNotEmptyNullUndefined, isDotEmpty, isEmpty, isNotNull, encryptData, decryptData } from "../../components/shared/helper";
+import { isNotEmptyNullUndefined, isDotEmpty, isEmpty, isNotNull, encryptData, decryptData, clearStorageItems } from "../../components/shared/helper";
 import { Close, Visibility, VisibilityOff } from "@material-ui/icons";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { useDispatch, useSelector } from "react-redux";
@@ -70,7 +70,7 @@ const useStyles = makeStyles((theme) => ({
       alignItems: "center",
       justifyContent: "center"
    },
-   h_auto: {
+   autoHeight: {
       height: "auto !important"
    },
    root: {
@@ -143,7 +143,6 @@ const useStyles = makeStyles((theme) => ({
          color: "#ffffff"
       }
    },
-
    cancelButton: {
       margin: "24px 12px 2px",
       marginleft: "12px",
@@ -161,7 +160,7 @@ const useStyles = makeStyles((theme) => ({
          color: "#000000"
       }
    },
-   btnChangePassword: {
+   changePasswordButton: {
       margin: "25px 10px 0px 0px",
       background: "#00648d",
       borderRadius: 8,
@@ -189,11 +188,11 @@ const useStyles = makeStyles((theme) => ({
       display: "flex !important",
       justifyContent: "center !important"
    },
-   closeBtn: {
+   closeButton: {
       fontSize: "1.5rem !important",
       cursor: "pointer !important"
    },
-   bgColor: {
+   autoCompleteBackground: {
       background: "#ebedef"
    },
    marginLeftAuto: {
@@ -263,8 +262,7 @@ export default function MyProfile() {
    };
 
    const handleLogOut = () => {
-      sessionStorage.clear();
-      localStorage.clear();
+      clearStorageItems();
       history.push(apiRouter.SUCCESS_UPDATE);
       window.location.reload();
    };
@@ -361,22 +359,27 @@ export default function MyProfile() {
    const handleClickShowOldPassword = () => {
       setShowOldPassword(!showOldPassword);
    };
+
    const handleClickShowNewPassword = () => {
       setShowNewPassword(!showNewPassword);
    };
+
    const handleClickShowConfirmPassword = () => {
       setShowConfirmPassword(!showConfirmPassword);
    };
+
    const handleCloseStateDropDown = (event, closeReason) => {
       if (closeReason === displayText.BLUR) {
          setEditProvinceState(myProfile?.state ? myProfile.state : stringManipulationCheck.EMPTY_STRING);
       }
    };
+
    const handleCloseCountryDropDown = (event, closeReason) => {
       if (closeReason === displayText.BLUR) {
          setEditCountry(myProfile?.country ? myProfile.country : stringManipulationCheck.EMPTY_STRING);
       }
    };
+
    const getMyProfile = async () => {
       let url = `${apiRouter.COMMON}/${apiRouter.GET_USER_PROFILE}/${userId}`;
       dispatch(userActionCreator.GetMyProfile(url));
@@ -434,10 +437,12 @@ export default function MyProfile() {
       const url = `${apiRouter.COUNTRY}`;
       dispatch(actionCreator.FetchCountryList(url));
    };
+
    const StateList = () => {
       const url = `${apiRouter.STATE}`;
       dispatch(actionCreator.FetchStateList(url));
    };
+
    useEffect(() => {
       if (isNotNull(myProfile)) {
          setUserName(myProfile?.userName);
@@ -500,6 +505,13 @@ export default function MyProfile() {
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [validationMessage]);
 
+   const renderPasswordErrorMessage = () => {
+      if (oldPasswordError || newPasswordError || confirmPasswordError) {
+         return (<div className={classes.errMsg}>{passwordErrorMessage}</div>);
+      }
+      return (<div className={classes.errStyle}>{errMsg}</div>);
+   }
+
    const handleInputChange = (type, e) => {
       switch (type) {
          case displayText.PHONE:
@@ -519,6 +531,7 @@ export default function MyProfile() {
             return stringManipulationCheck.EMPTY_STRING;
       }
    }
+
    const myProfileDetails = () => {
       return (<Grid item xs={gridWidth.MaxWidth}>
          <Grid
@@ -580,7 +593,7 @@ export default function MyProfile() {
                               fullWidth
                               onClick={(e) => setChangePasswordDialogOpen(true)}
                               variant="contained"
-                              className={classes.btnChangePassword}>
+                              className={classes.changePasswordButton}>
                               {displayText.CHANGE_PASSWORD}
                            </Button>
                         </div>
@@ -600,6 +613,130 @@ export default function MyProfile() {
       </Grid>)
    }
 
+   const renderUsernameAddressCity = () => {
+      return (
+         <>
+            <Grid item sm={gridWidth.DefaultWidth} xs={gridWidth.MaxWidth}>
+               <TextRecord
+                  lableName={displayText.USER_NAME}
+                  textValue={edituserName}
+                  readOnly={false}
+                  onChange={(e) => setEditUserName(e.target.value)} />
+            </Grid>
+            <Grid item sm={gridWidth.DefaultWidth} xs={gridWidth.MaxWidth}>
+               <TextRecord
+                  readOnly={false}
+                  lableName={displayText.ADDRESS}
+                  onChange={(e) => setEditAddress(e.target.value)}
+                  textValue={editaddress} />
+            </Grid>
+            <Grid item sm={gridWidth.DefaultWidth} xs={gridWidth.MaxWidth}>
+               <TextRecord
+                  lableName={displayText.CITY}
+                  textValue={editcity}
+                  onChange={(e) => handleInputChange(displayText.CITY, e)}
+                  readOnly={false} />
+            </Grid>
+         </>
+      )
+   }
+
+   const renderStateCountry = () => {
+      return (
+         <>
+            <Grid item sm={gridWidth.DefaultWidth} xs={gridWidth.MaxWidth}>
+               <Typography
+                  className={classes.lableStyle}
+                  variant="h6">
+                  {displayText.PROVINCE_STATE}
+               </Typography>
+               <Autocomplete
+                  className={classes.autoCompleteBackground}
+                  required
+                  options={stateList}
+                  inputValue={editprovincestate}
+                  onInputChange={(event, selectedstate) => {
+                     event
+                        ? setEditProvinceState(selectedstate)
+                        : setEditProvinceState(editprovincestate);
+                  }}
+                  getOptionLabel={(statelist) => statelist?.name}
+                  onClose={(event, closeReason) => handleCloseStateDropDown(event, closeReason)}
+                  openOnFocus={true}
+                  renderInput={(params) => (
+                     <>
+                        {stringManipulationCheck.SINGLE_SPACE_STRING}
+                        <TextField {...params} variant="outlined" />
+                     </>
+                  )} />
+            </Grid>
+            <Grid item sm={gridWidth.DefaultWidth} xs={gridWidth.MaxWidth}>
+               <Typography
+                  className={classes.lableStyle}
+                  variant="h6">
+                  {displayText.COUNTRY}
+               </Typography>
+               <Autocomplete
+                  className={classes.autoCompleteBackground}
+                  required
+                  options={countryList}
+                  inputValue={editcountry}
+                  onChange={(event, selectedCountry) => { handleSelectCountry(event, selectedCountry); }}
+                  onInputChange={(event, selectedcountry) => {
+                     event
+                        ? setEditCountry(selectedcountry)
+                        : setEditCountry(editcountry);
+                  }}
+                  onClose={(event, closeReason) => handleCloseCountryDropDown(event, closeReason)}
+                  getOptionLabel={(countrylist) =>
+                     countrylist?.name}
+                  openOnFocus={true}
+                  renderInput={(params) => (
+                     <>
+                        {stringManipulationCheck.SINGLE_SPACE_STRING}
+                        <TextField {...params} variant="outlined" />
+                     </>
+                  )} />
+            </Grid>
+         </>
+      )
+   }
+
+   const renderPostalPhone = () => {
+      return (
+         <>
+            <Grid item sm={gridWidth.DefaultWidth} xs={gridWidth.MaxWidth}>
+               <TextRecord
+                  readOnly={false}
+                  lableName={clientProfileLabelText.POSTAL_CODE}
+                  onChange={(e) => setEditPostal(e.target.value)}
+                  textValue={editpostal} />
+            </Grid>
+            <Grid item sm={gridWidth.DefaultWidth} xs={gridWidth.MaxWidth}>
+               <TextRecord
+                  readOnly={false}
+                  lableName={displayText.PHONE}
+                  onChange={(e) => handleInputChange(displayText.PHONE, e)}
+                  textValue={editphone} />
+            </Grid>
+         </>
+      )
+   }
+
+   const renderProfileHeader = () => {
+      return (
+         <div className={classes.header}>
+            <div>{displayText.MY_PROFILE}</div>
+            <div className={classes.marginLeftAuto}>
+               {JSON.parse(decryptData(sessionStorageKey.USER_DETAILS))?.email}
+            </div>
+            <div onClick={(e) => handleClearUserDetails()}>
+               <Close className={classes.closeButton} />
+            </div>
+         </div>
+      )
+   }
+
    const myProfileEditDialog = () => {
       return (<Modal
          aria-labelledby="add-client-modal-title"
@@ -614,15 +751,7 @@ export default function MyProfile() {
       >
          <Fade in={myProfileDialogOpen}>
             <div className={classes.root}>
-               <div className={classes.header}>
-                  <div>{displayText.MY_PROFILE}</div>
-                  <div className={classes.marginLeftAuto}>
-                     {JSON.parse(decryptData(sessionStorageKey.USER_DETAILS))?.email}
-                  </div>
-                  <div onClick={(e) => handleClearUserDetails()}>
-                     <Close className={classes.closeBtn} />
-                  </div>
-               </div>
+               {renderProfileHeader()}
                <div className={classes.rootBody}>
                   <form>
                      <Grid item xs={gridWidth.MaxWidth}>
@@ -638,95 +767,9 @@ export default function MyProfile() {
                                  container
                                  className={classes.gridStyle}
                                  spacing={myProfileGrid.DefaultSpacing}>
-                                 <Grid item sm={gridWidth.DefaultWidth} xs={gridWidth.MaxWidth}>
-                                    <TextRecord
-                                       lableName={displayText.USER_NAME}
-                                       textValue={edituserName}
-                                       readOnly={false}
-                                       onChange={(e) => setEditUserName(e.target.value)} />
-                                 </Grid>
-                                 <Grid item sm={gridWidth.DefaultWidth} xs={gridWidth.MaxWidth}>
-                                    <TextRecord
-                                       readOnly={false}
-                                       lableName={displayText.ADDRESS}
-                                       onChange={(e) => setEditAddress(e.target.value)}
-                                       textValue={editaddress} />
-                                 </Grid>
-                                 <Grid item sm={gridWidth.DefaultWidth} xs={gridWidth.MaxWidth}>
-                                    <TextRecord
-                                       lableName={displayText.CITY}
-                                       textValue={editcity}
-                                       onChange={(e) => handleInputChange(displayText.CITY, e)}
-                                       readOnly={false} />
-                                 </Grid>
-                                 <Grid item sm={gridWidth.DefaultWidth} xs={gridWidth.MaxWidth}>
-                                    <Typography
-                                       className={classes.lableStyle}
-                                       variant="h6">
-                                       {displayText.PROVINCE_STATE}
-                                    </Typography>
-                                    <Autocomplete
-                                       className={classes.bgColor}
-                                       required
-                                       options={stateList}
-                                       inputValue={editprovincestate}
-                                       onInputChange={(event, selectedstate) => {
-                                          event
-                                             ? setEditProvinceState(selectedstate)
-                                             : setEditProvinceState(editprovincestate);
-                                       }}
-                                       getOptionLabel={(statelist) => statelist?.name}
-                                       onClose={(event, closeReason) => handleCloseStateDropDown(event, closeReason)}
-                                       openOnFocus={true}
-                                       renderInput={(params) => (
-                                          <>
-                                             {stringManipulationCheck.SINGLE_SPACE_STRING}
-                                             <TextField {...params} variant="outlined" />
-                                          </>
-                                       )} />
-                                 </Grid>
-                                 <Grid item sm={gridWidth.DefaultWidth} xs={gridWidth.MaxWidth}>
-                                    <Typography
-                                       className={classes.lableStyle}
-                                       variant="h6">
-                                       {displayText.COUNTRY}
-                                    </Typography>
-                                    <Autocomplete
-                                       className={classes.bgColor}
-                                       required
-                                       options={countryList}
-                                       inputValue={editcountry}
-                                       onChange={(event, selectedCountry) => { handleSelectCountry(event, selectedCountry); }}
-                                       onInputChange={(event, selectedcountry) => {
-                                          event
-                                             ? setEditCountry(selectedcountry)
-                                             : setEditCountry(editcountry);
-                                       }}
-                                       onClose={(event, closeReason) => handleCloseCountryDropDown(event, closeReason)}
-                                       getOptionLabel={(countrylist) =>
-                                          countrylist?.name}
-                                       openOnFocus={true}
-                                       renderInput={(params) => (
-                                          <>
-                                             {stringManipulationCheck.SINGLE_SPACE_STRING}
-                                             <TextField {...params} variant="outlined" />
-                                          </>
-                                       )} />
-                                 </Grid>
-                                 <Grid item sm={gridWidth.DefaultWidth} xs={gridWidth.MaxWidth}>
-                                    <TextRecord
-                                       readOnly={false}
-                                       lableName={clientProfileLabelText.POSTAL_CODE}
-                                       onChange={(e) => setEditPostal(e.target.value)}
-                                       textValue={editpostal} />
-                                 </Grid>
-                                 <Grid item sm={gridWidth.DefaultWidth} xs={gridWidth.MaxWidth}>
-                                    <TextRecord
-                                       readOnly={false}
-                                       lableName={displayText.PHONE}
-                                       onChange={(e) => handleInputChange(displayText.PHONE, e)}
-                                       textValue={editphone} />
-                                 </Grid>
+                                 {renderUsernameAddressCity()}
+                                 {renderStateCountry()}
+                                 {renderPostalPhone()}
                                  <Grid item sm={gridWidth.DefaultWidth} xs={gridWidth.MinWidth}>
                                     <div className={classes.footer}>
                                        <div>
@@ -842,11 +885,7 @@ export default function MyProfile() {
                         />
                      </FormControl>
                   </div>
-                  {(oldPasswordError || newPasswordError || confirmPasswordError) ? (
-                     <div className={classes.errMsg}>{passwordErrorMessage}</div>
-                  ) : (
-                     <div className={classes.errStyle}>{errMsg}</div>
-                  )}
+                  {renderPasswordErrorMessage()}
                   <div className={classes.passwordGuidelineStyle}>
                      <h4>{displayText.PASSWORD_GUIDELINES}</h4>
                   </div>
@@ -883,7 +922,7 @@ export default function MyProfile() {
 
    return (
       <div>
-         <Grid spacing={myProfileGrid.DefaultSpacing} className={classes.h_auto}>
+         <Grid spacing={myProfileGrid.DefaultSpacing} className={classes.autoHeight}>
             <Grid item xs={gridWidth.MaxWidth}>
                <Typography variant="h5" className={classes.headStyle} gutterBottom>
                   {displayText.MY_PROFILE}

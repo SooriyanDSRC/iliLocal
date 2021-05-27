@@ -18,24 +18,27 @@ function PaperComponent(props) {
 }
 
 const useStyles = makeStyles((theme) => ({
-   dialogContentPadding:{
-      padding:"0px !important"
+   dialogContentPadding: {
+      padding: "0px !important"
+   },
+   titleBackground: {
+      backgroundColor: "#00648d",
+      color: "#ffffff"
    }
 }));
 
 const DatePickerDialog = (props) => {
    const commonClasses = DataEntryStyles();
-   const [open,setOpen] = useState(false);
+   const [open, setOpen] = useState(false);
    const [heading, setHeading] = useState(null);
    const [dateValue, setDateValue] = useState(null);
-   const [minimalDate, setMinimalDate] = useState(null);
    const classes = useStyles();
 
    useEffect(() => {
       setOpen(props.showDialog);
       setDateValue(props.dateValue);
       setHeading(props.heading);
-   },[props]);
+   }, [props]);
 
 
    return (
@@ -45,11 +48,13 @@ const DatePickerDialog = (props) => {
          aria-labelledby="draggable-dialog-title">
          <DialogTitle
             style={{ cursor: "move" }}
-            id="draggable-dialog-title">
+            id="draggable-dialog-title"
+            className={classes.titleBackground}>
             {heading}
          </DialogTitle>
          <DialogContent className={classes.dialogContentPadding}>
             <KeyboardDatePicker
+               disableToolbar
                variant="static"
                margin="normal"
                format={displayText.DATE_FORMAT}
@@ -61,10 +66,10 @@ const DatePickerDialog = (props) => {
                value={dateValue} />
          </DialogContent>
          <DialogActions>
-            <Button autoFocus  color="primary" onClick={(e)=>props.onCancel()}>
+            <Button autoFocus color="primary" onClick={(e) => props.onCancel()}>
                Cancel
             </Button>
-            <Button color="primary" onClick={(e)=>props.onSave(heading,dateValue)}>
+            <Button color="primary" onClick={(e) => props.onSave(heading, dateValue)}>
                Ok
             </Button>
          </DialogActions>

@@ -19,45 +19,45 @@ import { arrayConstants } from '../../arrayconstants';
 
 const useStyles = makeStyles((theme) => ({
    header: {
-      backgroundColor: '#00648d',
-      color: '#ffffff',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      backgroundColor: "#00648d",
+      color: "#ffffff",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
       height: 50,
-      fontSize: '1rem',
-      padding: '1rem',
-      fontWeight: '700'
+      fontSize: "1rem",
+      padding: "1rem",
+      fontWeight: "700"
    },
    footer: {
-      display: 'flex',
-      paddingRight: '3%',
-      justifyContent: 'flex-end',
-      marginTop: '0.5rem'
+      display: "flex",
+      paddingRight: "3%",
+      justifyContent: "flex-end",
+      marginTop: "0.5rem"
    },
    dropdownRoot: {
-      display: 'flex',
-      padding: '1.5%',
-      width: '100%'
+      display: "flex",
+      padding: "1.5%",
+      width: "100%"
    },
    modal: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
    },
    root: {
-      height: 'auto !important',
-      width: '60%',
+      height: "auto !important",
+      width: "60%",
       backgroundColor: theme.palette.background.paper,
       boxShadow: theme.shadows[5],
-      outline: 'none'
+      outline: "none"
    },
    rootBody: {
       backgroundColor: theme.palette.background.paper,
       flexGrow: 1
    },
    formControl: {
-      minWidth: '100%'
+      minWidth: "100%"
    }
 }));
 const HeaderDropdown = () => {

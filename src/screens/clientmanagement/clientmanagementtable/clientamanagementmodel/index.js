@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
    menuItemStyle: {
       "&:hover": {
          backgroundColor: "#d3dadd !important",
-         color: "#00648d !important",
+         color: "#00648d !important"
       }
    },
    rootBody: {

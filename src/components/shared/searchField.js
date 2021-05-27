@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Paper, InputBase, IconButton } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Clear';
-import { stringManipulationCheck } from '../../constant';
+import { displayText, stringManipulationCheck } from '../../constant';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,7 +31,7 @@ export default function SearchField(props) {
   const [searchValue, setSearchValue] = useState(stringManipulationCheck.EMPTY_STRING);
 
   const handleEnterKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === displayText.ENTER) {
       props.handleSearch(searchValue);
     }
   };

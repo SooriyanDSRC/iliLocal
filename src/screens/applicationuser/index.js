@@ -144,7 +144,7 @@ export default function ApplicationUser() {
       if ((isAppUserAdded || isAppUserEdited) && !isOrderbyName) {
          setPage(pageNumber);
       }
-      let sortOrder = !isAsc
+      const sortOrder = !isAsc
          ? `${orderBy + displayText.DESC}`
          : `${orderBy + displayText.ASC}`;
       const url = `${apiRouter.USERS}/${apiRouter.GET_APP_ADMIN_USERS}?${apiRouter.PAGE_NUMBER

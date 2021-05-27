@@ -12,7 +12,7 @@ import * as actionCreator from "../../store/action/userManageAction";
 import SwitchComponent from "../../components/shared/switch";
 import Pagination from "../../components/shared/pagination";
 import { displayText, apiRouter, sessionStorageKey, initialPageLimit, initialPage, stringManipulationCheck } from "../../constant";
-import { preferenceIsActive, preferenceIsAsc, splitString, isNullUndefined, removeDoubleQuotes, findFeaturesRole, setSessionStorage, decryptData } from "../../components/shared/helper";
+import { preferenceIsActive, preferenceIsAsc, splitString, isNullUndefined, removeDoubleQuotes, findFeaturesRole, setSessionStorage, decryptData, clearStorageItems } from "../../components/shared/helper";
 import _ from "lodash";
 import { arrayConstants } from "../../arrayconstants";
 import { user, initialDataCount, gridWidth } from '../../gridconstants';
@@ -90,8 +90,7 @@ export default function UserManagement() {
    };
 
    const handleLogout = () => {
-      sessionStorage.clear();
-      localStorage.clear();
+      clearStorageItems();
       window.location.reload();
       history.push('/login');
    };

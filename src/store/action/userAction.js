@@ -3,7 +3,7 @@ import { userReducerConstant } from '../reducerConstant';
 import { sessionStorageKey, errorMessage, displayText, statusCode, apiRouter, stringManipulationCheck } from '../../constant';
 import { showSuccessSnackbar, showFailureSnackbar, showWarningSnackbar } from './snackbarAction';
 import _ from 'lodash';
-import { decryptData, isNullUndefined, isStatusCodeValid, isUndefined, encryptData, isEmpty, isCookieValid } from '../../components/shared/helper';
+import { decryptData, isNullUndefined, isStatusCodeValid, isUndefined, encryptData, isEmpty, isCookieValid, clearStorageItems } from '../../components/shared/helper';
 import { arrayConstants } from '../../arrayconstants';
 
 export const UserLogin = (url, data) => (dispatch) => {
@@ -102,8 +102,7 @@ export const RevokeToken = (url, data) => {
                dispatch(removeLogoutLoader(false));
                return;
             }
-            sessionStorage.clear();
-            localStorage.clear();
+            clearStorageItems();
             window.location.reload();
             dispatch(removeLogoutLoader(false));
          })

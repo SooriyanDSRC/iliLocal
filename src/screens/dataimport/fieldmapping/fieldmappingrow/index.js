@@ -133,24 +133,35 @@ export default function FieldMappingRow(props) {
    }, [props?.quantityList]);
 
    const getFieldMappingDetails = (fieldMappingData) => {
-      if (fieldMappingData.length > arrayConstants.initialOrder) {
-         const data = _.find(fieldMappingData, {
-            excelColumn: props?.columnName,
-            sheetName: props?.sheetName,
-         });
-         if (isUndefined(data)) {
-            setFieldMappingData(data);
-            if (isNotEmptyNullUndefined(data?.excelUnitName) && isNotEmptyNullUndefined(data?.excelUnit)) {
-               setChooseSubUnit(data?.excelUnitName)
-            }
+      if (fieldMappingData.length <= arrayConstants.initialOrder) {
+         return;
+      }
+      const data = _.find(fieldMappingData, {
+         excelColumn: props?.columnName,
+         sheetName: props?.sheetName,
+      });
+      if (isUndefined(data)) {
+         setFieldMappingData(data);
+         if (isNotEmptyNullUndefined(data?.excelUnitName) && isNotEmptyNullUndefined(data?.excelUnit) && _.find(unitQuantityList, { unitName: data.excelUnitName })) {
+            return setChooseSubUnit(data?.excelUnitName)
          }
+         return setChooseSubUnit(displayText.DEFAULT_PARENTID);
       }
    }
 
+   const updateSelectedAubUnit = (currentFieldData) => {
+      if (_.find(unitQuantityList, { unitName: selectedSubUnit }) === undefined) {
+         return setSelectedSubUnit(displayText.DEFAULT_PARENTID);
+      }
+      if (selectedSubUnit !== displayText.DEFAULT_PARENTID) {
+         return setSelectedSubUnit(selectedSubUnit);
+      }
+      return setSelectedSubUnit(currentFieldData?.excelUnitName);
+   };
    const setFieldMappingData = (data) => {
       if (data?.unitType) {
          setSelectedUnit(selectedUnit !== displayText.DEFAULT_PARENTID ? selectedUnit : data?.unitType);
-         setSelectedSubUnit(selectedSubUnit !== displayText.DEFAULT_PARENTID ? selectedSubUnit : data?.excelUnitName);
+         updateSelectedAubUnit(data)
          const excelSubunit = _.find(props?.getAllUnitList, function (subunit) {
             return subunit.unitName === data?.excelUnitName;
          });
@@ -169,9 +180,13 @@ export default function FieldMappingRow(props) {
    };
 
    const setSelectedUnitData = (event) => {
+      if (chooseUnit === event.target.value) {
+         return;
+      }
+      setChooseSubUnit(displayText.DEFAULT_PARENTID);
       event ? setChooseUnit(event.target.value) : setChooseUnit(chooseUnit);
       const selectedUnitData = event.target.value === displayText.DEFAULT_PARENTID
-         ? (null, setChosenSubunit(stringManipulationCheck.EMPTY_STRING), setChooseSubUnit(displayText.DEFAULT_PARENTID), setUnitQuantityList([]))
+         ? (null, setChooseSubUnit(displayText.DEFAULT_PARENTID), setUnitQuantityList([]))
          : event.target.value;
       setShowSubUnit(true)
       props.fetchSubUnits(selectedUnitData);
