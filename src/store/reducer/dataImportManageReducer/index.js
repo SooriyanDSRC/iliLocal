@@ -35,6 +35,7 @@ const initialState = {
    qcInput: null,
    dataSummaryOperationalArea: null,
    dataSummaryVendor: null,
+   iliSummaryScreenData: null,
    quantityList: null,
    templateResult: null,
    iliSummaryDashboardData: null,
@@ -44,7 +45,8 @@ const initialState = {
    fileName: stringManipulationCheck.EMPTY_STRING,
    isSummaryLoading: null,
    isVendorLoading: null,
-   isOperationalAreaLoading: null
+   isOperationalAreaLoading: null,
+   toolTypeData: null
 };
 
 const dataImportManageReducer = (state = initialState, action = {}) => {
@@ -180,6 +182,7 @@ const dataImportManageReducer = (state = initialState, action = {}) => {
             showOverlayLoader: false,
             showOverlayLoaderMessage: stringManipulationCheck.EMPTY_STRING,
             savedInspectionGuid: null,
+            toolTypeData: null
          };
       case dataImportReducerConstant.UPDATE_EXCEL_TEMPLATE:
          return {
@@ -224,7 +227,9 @@ const dataImportManageReducer = (state = initialState, action = {}) => {
             jointLength: false,
             lastJointLength: false,
             formData: null,
-            fileName: stringManipulationCheck.EMPTY_STRING
+            fileName: stringManipulationCheck.EMPTY_STRING,
+            excelData: null,
+            toolTypeData: null
          };
       case dataImportReducerConstant.REVERT_SUCCESS_REDIRECT:
          return {
@@ -303,6 +308,17 @@ const dataImportManageReducer = (state = initialState, action = {}) => {
             ...state,
             isOperationalAreaLoading: false
          }
+      case dataImportReducerConstant.ILI_SUMMARY_SCREEN_DATA:
+         return {
+            ...state,
+            iliSummaryScreenData: action.value
+         }
+      case dataImportReducerConstant.UPDATE_TOOL_TYPE:
+         return {
+            ...state,
+            toolTypeData: action.value
+         }
+
       default:
          return state;
    }

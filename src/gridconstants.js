@@ -17,8 +17,10 @@ export const operationalAreaGrid = {
 export const dataImportGrid = {
    DefaultSpacing: 2,
    DataEntryColumn: 3,
+   LargeDataEntryColumn: 4,
    CommentsColumn: 9,
-   QcSpacing: 1
+   QcSpacing: 1,
+   FullWidth: 12
 };
 
 export const gridWidth = {

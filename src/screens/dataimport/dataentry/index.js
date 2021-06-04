@@ -1,19 +1,20 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import {
   Grid, TextField, MenuItem, InputLabel, Select, FormControl,
-  Button, Paper, OutlinedInput, InputAdornment, IconButton
+  Button, OutlinedInput, InputAdornment, IconButton
 } from "@material-ui/core";
 import { displayText, stringManipulationCheck } from "../../../constant";
 import { isNotEmptyNullUndefined, convertToISODate, formatDate, checkFieldLength, isNotNull } from "../../../components/shared/helper";
 import { fieldMappingSheetConfig } from "../../../dataimportconstants";
 import { dataImportGrid } from "../../../gridconstants";
 import { MuiPickersUtilsProvider } from "@material-ui/pickers";
+import { updateToolType } from "../../../store/action/dataImportAction";
 import DateFnsUtils from "@date-io/date-fns";
 import DataEntryStyles from "../../../scss/dataEntryStyles";
-import Draggable from 'react-draggable';
 import DatePickerDialog from './datepickerdialog';
 import EventIcon from '@material-ui/icons/Event';
 import moment from "moment";
+import { useDispatch } from "react-redux";
 
 const DataEntry = (props, ref) => {
   useImperativeHandle(ref, () => ({
@@ -33,7 +34,7 @@ const DataEntry = (props, ref) => {
   const [beginDate, setBeginDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [reportDate, setReportDate] = useState(new Date());
-  const [importDate, setImportDate] = useState(new Date());
+  // const [importDate, setImportDate] = useState(new Date());
   const [selectedToolType, setSelectedToolType] = useState(displayText.DEFAULT_PARENTID);
   const [selectedToolVendor, setSelectedToolVendor] = useState(displayText.DEFAULT_PARENTID);
   const [selectedToolVendorName, setSelectedToolVendorName] = useState(null);
@@ -46,18 +47,11 @@ const DataEntry = (props, ref) => {
   const [fromLocation, setFromLocation] = useState(null);
   const [toLocation, setToLocation] = useState(null);
   const commonClasses = DataEntryStyles();
+  const dispatch = useDispatch();
 
   const formatFieldValues = (value, previousValue) => {
     return checkFieldLength(value.length, fieldMappingSheetConfig.iliDataCommentsLocationLimit) ? previousValue : value;
   };
-
-  function PaperComponent(props) {
-    return (
-      <Draggable handle="#draggable-dialog-title" cancel={'[class*="MuiDialogContent-root"]'}>
-        <Paper {...props} />
-      </Draggable>
-    );
-  }
 
   const handleInputChange = (type, e) => {
     switch (type) {
@@ -70,8 +64,8 @@ const DataEntry = (props, ref) => {
       case displayText.END_DATE:
         setReportDate(e);
         return setEndDate(e);
-      case displayText.IMPORT_DATE:
-        return setImportDate(e);
+      // case displayText.IMPORT_DATE:
+      //   return setImportDate(e);
       case displayText.REPORT_DATE:
         return setReportDate(e);
       case displayText.VERSION_NUMBER:
@@ -97,7 +91,7 @@ const DataEntry = (props, ref) => {
     return {
       beginDate: convertToISODate(beginDate),
       endDate: convertToISODate(endDate),
-      importDate: convertToISODate(importDate),
+      // importDate: convertToISODate(importDate),
       reportDate: convertToISODate(reportDate),
       versionNumber: versionNumber,
       projectNumber: projectNumber,
@@ -140,11 +134,11 @@ const DataEntry = (props, ref) => {
       setBeginDate(formattedBeginDate);
       let formattedEndDate = formatDate(props.dataSummary.endDate);
       setEndDate(formattedEndDate);
-      let formattedImportDate = formatDate(props.dataSummary.importDate);
-      setImportDate(formattedImportDate);
+      // let formattedImportDate = formatDate(props.dataSummary.importDate);
+      // setImportDate(formattedImportDate);
       let formattedReportDate = formatDate(props.dataSummary.reportDate);
       setReportDate(formattedReportDate);
-      setSelectedToolType(props.dataSummary.toolTypeCl);
+      updateToolTypeValue(props.dataSummary.toolTypeCl);
       setSelectedToolVendor(props.dataSummary.toolVendorCl);
       setSelectedOperationalAreaCl(props.dataSummary.toolOperationalAreaCl);
       setSelectedCluster(props.dataSummary.clusterRuleCl);
@@ -187,7 +181,7 @@ const DataEntry = (props, ref) => {
   };
 
   const convertDate = (date) => {
-    return moment(date).format('LL');
+    return moment(date).format(displayText.DATE_FORMAT);
   };
 
   const renderDates = () => {
@@ -250,7 +244,7 @@ const DataEntry = (props, ref) => {
               />
             </FormControl>
           </Grid>
-          <Grid item xs={dataImportGrid.DataEntryColumn}>
+          {/* <Grid item xs={dataImportGrid.DataEntryColumn}>
             <FormControl
               variant="outlined"
               className={commonClasses.formControl}
@@ -272,7 +266,7 @@ const DataEntry = (props, ref) => {
                 }
               />
             </FormControl>
-          </Grid>
+          </Grid> */}
           <Grid item xs={dataImportGrid.DataEntryColumn}>
             <FormControl
               variant="outlined"
@@ -301,6 +295,11 @@ const DataEntry = (props, ref) => {
     );
   };
 
+  const updateToolTypeValue = (value) => {
+    setSelectedToolType(value);
+    dispatch(updateToolType(value));
+  }
+
   const renderFormControl = (type) => {
     switch (type) {
       case displayText.TOOL_TYPE_CL:
@@ -317,8 +316,8 @@ const DataEntry = (props, ref) => {
                 value={selectedToolType}
                 onChange={(event) => {
                   event
-                    ? setSelectedToolType(event.target.value)
-                    : setSelectedToolType(selectedToolType);
+                    ? updateToolTypeValue(event.target.value)
+                    : updateToolTypeValue(selectedToolType);
                 }}
                 MenuProps={{ disableScrollLock: false }}
                 label={displayText.TOOL_TYPE_CL}>
@@ -470,7 +469,14 @@ const DataEntry = (props, ref) => {
               label={displayText.TO_LOCATION_DESC}
               fullWidth />
           </Grid>
-          <Grid item xs={dataImportGrid.CommentsColumn}>
+          <Grid item xs={dataImportGrid.DataEntryColumn}>
+            <Button
+              className={commonClasses.searchButton}
+              onClick={(e) => getSearchSummaryData()}>
+              {displayText.SEARCH_DATA}
+            </Button>
+          </Grid>
+          <Grid item xs={dataImportGrid.FullWidth}>
             <TextField
               value={comments}
               variant="outlined"
@@ -480,13 +486,7 @@ const DataEntry = (props, ref) => {
               className={commonClasses.formControl}
               fullWidth />
           </Grid>
-          <Grid item xs={dataImportGrid.DataEntryColumn}>
-            <Button
-              className={commonClasses.searchButton}
-              onClick={(e) => getSearchSummaryData()}>
-              {displayText.SEARCH_DATA}
-            </Button>
-          </Grid>
+
         </Grid>
       </form>
     </div>

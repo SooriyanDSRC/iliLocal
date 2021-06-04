@@ -2,6 +2,7 @@ import serviceCall from '../serviceCall';
 import { userReducerConstant } from '../reducerConstant';
 import { sessionStorageKey, errorMessage, displayText, statusCode, apiRouter, stringManipulationCheck } from '../../constant';
 import { showSuccessSnackbar, showFailureSnackbar, showWarningSnackbar } from './snackbarAction';
+import { isUserLoggingOut } from './userManageAction';
 import _ from 'lodash';
 import { decryptData, isNullUndefined, isStatusCodeValid, isUndefined, encryptData, isEmpty, isCookieValid, clearStorageItems } from '../../components/shared/helper';
 import { arrayConstants } from '../../arrayconstants';
@@ -91,7 +92,7 @@ export const GetRefreshToken = (url) => {
    };
 }
 
-export const RevokeToken = (url, data) => {
+export const RevokeToken = (url, data, history) => {
    return (dispatch) => {
       dispatch(setLogoutLoader(true));
       return serviceCall
@@ -102,8 +103,9 @@ export const RevokeToken = (url, data) => {
                dispatch(removeLogoutLoader(false));
                return;
             }
+            dispatch(isUserLoggingOut(true));
             clearStorageItems();
-            window.location.reload();
+            history.push('/login');
             dispatch(removeLogoutLoader(false));
          })
          .catch((e) => {
@@ -212,7 +214,7 @@ export const GetMyProfile = (url) => {
 };
 
 const FetchMyprofileSuccess = (val) => {
-   return { type: userReducerConstant.FETCH_MY_PROFILE, value: val, };
+   return { type: userReducerConstant.FETCH_MY_PROFILE, value: val };
 };
 
 const StartLoader = () => {

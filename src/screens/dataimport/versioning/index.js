@@ -9,7 +9,7 @@ import {
   Grid, InputLabel, Select, FormControl, MenuItem
 } from "@material-ui/core";
 import CommonStyles from "../../../scss/commonStyles";
-import { formatDate } from "../../../components/shared/helper";
+import { formatDateIntoReadable } from "../../../components/shared/helper";
 import { fieldMappingSheetConfig } from "../../../dataimportconstants";
 import { dataImportGrid, gridWidth } from "../../../gridconstants";
 import { arrayConstants } from "../../../arrayconstants";
@@ -212,10 +212,10 @@ const Versioning = (props, ref) => {
           <TableCell>{row.toLocationDesc}</TableCell>
           <TableCell>{row.toolVendorDescription}</TableCell>
           <TableCell>{row.toolTypeClDescription}</TableCell>
-          <TableCell>{formatDate(row.reportDate)}</TableCell>
-          <TableCell>{formatDate(row.beginDate)}</TableCell>
-          <TableCell>{formatDate(row.endDate)}</TableCell>
-          <TableCell>{formatDate(row.importDate)}</TableCell>
+          <TableCell>{formatDateIntoReadable(row.reportDate)}</TableCell>
+          <TableCell>{formatDateIntoReadable(row.beginDate)}</TableCell>
+          <TableCell>{formatDateIntoReadable(row.endDate)}</TableCell>
+          <TableCell>{formatDateIntoReadable(row.importDate)}</TableCell>
           <TableCell>{row.status}</TableCell>
           <TableCell>
             <IconButton

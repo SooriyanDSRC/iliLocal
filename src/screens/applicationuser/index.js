@@ -85,7 +85,7 @@ export default function ApplicationUser() {
    };
 
    const { countryList, stateList } = useSelector((state) => state.userManage);
-   const { appUserDetails, isAppUserDeleted, isAppUserAdded, isAppUserEdited, applicationuserloader, } = useSelector((state) => state.appUserManage);
+   const { appUserDetails, isAppUserDeleted, isAppUserAdded, isAppUserEdited, applicationuserloader, isUserInvite } = useSelector((state) => state.appUserManage);
    const handleCloseAddAppUserDialog = () => {
       setIsAddAppUserOpen(false);
    };
@@ -107,6 +107,12 @@ export default function ApplicationUser() {
       appUserCall(true);
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [isActive, searchValue, page, rowsPerPage, orderBy, isAsc]);
+
+   useEffect(() => {
+      if (isUserInvite) {
+         appUserCall(true);
+      }
+   }, [isUserInvite]);
 
    const handleSwitchChange = (isActive) => {
       setIsActive(isActive);

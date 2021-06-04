@@ -185,6 +185,33 @@ export const AddApplicationUsertoClient = (url, data) => {
    };
 };
 
+export const UserInvite = (url, data) => {
+   return (dispatch) => {
+      dispatch(StartLoader(true));
+      dispatch(InviteApplicationUserSuccess(false));
+      return serviceCall
+         .postData(url, data)
+         .then((result) => {
+            if (result && result.status === statusCode.CODE_200) {
+               dispatch(showSuccessSnackbar());
+               dispatch(InviteApplicationUserSuccess(true));
+               return;
+            }
+            dispatch(showFailureSnackbar(result));
+         })
+         .catch((e) => {
+            console.log(e);
+         });
+   };
+};
+
+const InviteApplicationUserSuccess = (val) => {
+   return {
+      type: applicationUserManageReducerConstant.INVITE_APPLICATION_USER,
+      value: val,
+   };
+};
+
 const AddApplicationUserToClientSuccess = (val) => {
    return {
       type: applicationUserManageReducerConstant.PROVERSION_TO_CLIENT,

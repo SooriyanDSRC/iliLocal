@@ -16,7 +16,7 @@ import * as userActionCreator from "../../../store/action/userManageAction";
 import { apiRouter } from "../../../constant";
 import AddModal from "../addapplicationusertmodel";
 import _ from "lodash";
-import { isNullUndefined, decryptData, getDirection } from "../../../components/shared/helper";
+import { isNullUndefined, decryptData, getDirection, isNotNull } from "../../../components/shared/helper";
 import CommonStyles from '../../../scss/commonStyles';
 
 const useStyles = makeStyles((theme) => ({
@@ -59,6 +59,14 @@ export default function ApplicationUserTable(props) {
       setAnchorEl(null);
    };
 
+   const handleApplicationUserInvite = (email) => {
+      let url = `${apiRouter.USERS}/${apiRouter.USER_ACTIVATION_TOKEN}`;
+      let userData = {
+         email: email,
+      };
+      dispatch(actionCreator.UserInvite(url, userData));
+   }
+
    const handleRequestSort = (event, property) => {
       const isAscending = orderBy === property ? !isAsc : true;
       props.handleSortTable(property, isAscending);
@@ -97,6 +105,24 @@ export default function ApplicationUserTable(props) {
       dispatch(actionCreator.DeleteApplicationUser(_.trim(url), null));
    };
 
+   const isSendInvite = (applicationUser) => {
+      return (isNotNull(applicationUser?.isUserActivationTokenExpired) && isNotNull(applicationUser?.isUserActivated)
+         && (applicationUser?.isUserActivationTokenExpired && !applicationUser?.isUserActivated));
+   }
+
+   const sendInvite = (applicationUser) => {
+      return (
+         isSendInvite(applicationUser) ?
+            <TableCell>
+               <Button
+                  className={commonClasses.inviteButton}
+                  onClick={(e) => handleApplicationUserInvite(applicationUser?.email)}>
+                  <b>{displayText.INVITE}</b>
+               </Button>
+            </TableCell>
+            : <TableCell></TableCell>)
+   }
+
    const renderTableHeader = () => {
       return (
          <TableHead>
@@ -114,6 +140,7 @@ export default function ApplicationUserTable(props) {
                   );
                })}
                <TableCell></TableCell>
+               {props.isActive ? <TableCell></TableCell> : stringManipulationCheck.EMPTY_STRING}
             </TableRow>
          </TableHead>
       )
@@ -132,6 +159,7 @@ export default function ApplicationUserTable(props) {
                   <TableCell>{applicationuser.country}</TableCell>
                   <TableCell>{applicationuser.postalcode}</TableCell>
                   <TableCell>{applicationuser.phone}</TableCell>
+                  {props.isActive ? sendInvite(applicationuser) : stringManipulationCheck.EMPTY_STRING}
                   <TableCell>
                      <IconButton onClick={(e) => handleActionClick(e, applicationuser)}>
                         <MoreVertIcon />

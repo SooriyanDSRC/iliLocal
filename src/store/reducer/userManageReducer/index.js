@@ -9,7 +9,8 @@ const initialState = {
     isUserEdited: null,
     isUserDeleted: null,
     usertableLoader: null,
-    isCurrentUser:null
+    isCurrentUser: null,
+    isLoggingOut: false,
 };
 
 const userManageReducer = (state = initialState, action = {}) => {
@@ -74,7 +75,11 @@ const userManageReducer = (state = initialState, action = {}) => {
                 ...state,
                 isUserDeleted: null,
             };
-
+        case userManageReducerConstant.IS_USER_LOGGING_OUT:
+            return {
+                ...state,
+                isLoggingOut: action.value
+            }
         default:
             return state;
     }

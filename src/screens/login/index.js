@@ -70,6 +70,7 @@ export default function Login() {
    const loading = useSelector((state) => state.user.isLoading);
    const userDetails = useSelector((state) => state.user.userDetails);
    const errMsg = useSelector((state) => state.user.errMsg);
+   const { isLoggingOut } = useSelector((state) => state.userManage);
    const classes = useStyles();
    const dispatch = useDispatch();
    const history = useHistory();
@@ -121,6 +122,11 @@ export default function Login() {
       }
    }
 
+   useEffect(() => {
+      if (isLoggingOut) {
+         window.location.reload();
+      }
+   }, [isLoggingOut])
 
    const handleInputChange = (type, e) => {
       setLoginEmailInputError(false);
@@ -212,8 +218,8 @@ export default function Login() {
                      {loginInputPasswordError || loginInputEmailError ? (
                         <div className={classes.errStyle}>{loginErrorMessage}</div>
                      ) : (
-                        <div className={classes.errStyle}>{errMsg}</div>
-                     )}
+                           <div className={classes.errStyle}>{errMsg}</div>
+                        )}
                      <Button
                         fullWidth
                         variant="contained"

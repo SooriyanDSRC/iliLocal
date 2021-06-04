@@ -77,6 +77,7 @@ export default function UserManagement() {
    const [isAsc, setIsAsc] = useState(order?.length > arrayConstants.nonEmptyArray ? preferenceIsAsc(order[arrayConstants.preferenceOrder]) : true);
    const [isActive, setIsActive] = useState(preferenceIsActive(preference));
    const history = useHistory();
+   const { isUserInvite } = useSelector((state) => state.appUserManage);
 
    const handleSearch = (search) => {
       if (searchValue !== search) {
@@ -90,6 +91,7 @@ export default function UserManagement() {
    };
 
    const handleLogout = () => {
+      dispatch(actionCreator.isUserLoggingOut(true));
       clearStorageItems();
       window.location.reload();
       history.push('/login');
@@ -123,6 +125,12 @@ export default function UserManagement() {
       const url = `${apiRouter.ROLES}/${clientId}`;
       dispatch(actionCreator.FetchRolesList(url));
    };
+
+   useEffect(() => {
+      if (isUserInvite) {
+         userCall(true);
+      }
+   }, [isUserInvite]);
 
    const userCall = (isOrderbyName = false) => {
       if ((isUserAdded || isUserEdited) && !isOrderbyName) { setPage(initialPage); }

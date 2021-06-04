@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
       flexGrow: 1
    },
    width: {
-      width: "100%",
+      width: "100%"
    },
    saveButton: {
       margin: theme.spacing(3, 1, 2),
@@ -280,16 +280,15 @@ export default function ApplicationUserModal(props) {
          setPostalCode(existsUserDetails?.postalcode);
          setPhone(existsUserDetails?.phone);
          getStateListbyCountry();
-      } else {
-         setUserName(stringManipulationCheck.EMPTY_STRING);
-         setAddress(stringManipulationCheck.EMPTY_STRING);
-         setCity(stringManipulationCheck.EMPTY_STRING);
-         setProvinceState(stringManipulationCheck.EMPTY_STRING);
-         setCountry(stringManipulationCheck.EMPTY_STRING);
-         setPostalCode(stringManipulationCheck.EMPTY_STRING);
-         setPhone(stringManipulationCheck.EMPTY_STRING);
+         return;
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      setUserName(stringManipulationCheck.EMPTY_STRING);
+      setAddress(stringManipulationCheck.EMPTY_STRING);
+      setCity(stringManipulationCheck.EMPTY_STRING);
+      setProvinceState(stringManipulationCheck.EMPTY_STRING);
+      setCountry(stringManipulationCheck.EMPTY_STRING);
+      setPostalCode(stringManipulationCheck.EMPTY_STRING);
+      setPhone(stringManipulationCheck.EMPTY_STRING);
    }, [existsUserDetails]);
 
    useEffect(() => {
@@ -510,7 +509,6 @@ export default function ApplicationUserModal(props) {
                               label={displayText.POSTALCODE}
                               fullWidth />
                         </Grid>
-
                         <Grid item xs={gridWidth.DefaultWidth}>
                            <TextField
                               value={phone}
@@ -548,6 +546,6 @@ export default function ApplicationUserModal(props) {
                </div>
             </div>
          </Fade>
-      </Modal>
+      </Modal >
    );
 }

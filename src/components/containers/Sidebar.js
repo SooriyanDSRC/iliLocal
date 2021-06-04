@@ -15,7 +15,7 @@ import { apiRouter, sessionStorageKey, displayText, stringManipulationCheck, toP
 import * as actionCreator from '../../store/action/userAction';
 import _ from 'lodash';
 import * as dataImportActionCreator from '../../store/action/dataImportAction';
-import { isNullUndefined, decryptData, deleteFile, findFeaturesRole, isCookieValid, isEmptyNullUndefined, isNotEmptyNullUndefined } from '../shared/helper';
+import { isNullUndefined, decryptData, deleteFile, findFeaturesRole, isCookieValid, isNotEmptyNullUndefined } from '../shared/helper';
 import ClientChangeModal from './clientChangeModal';
 import NavigationMenu from './Nav';
 import ResponsiveSideDrawer from './ResponsiveSideDrawer';

@@ -31,7 +31,6 @@ const DataEntryStyles = makeStyles((theme) => ({
       width: "100%",
    },
    searchButton: {
-      margin: "5px 0px 0px",
       marginRight: "auto",
       width: "100%",
       background: "#00648d",
@@ -41,7 +40,7 @@ const DataEntryStyles = makeStyles((theme) => ({
          backgroundColor: "#c6c6c6",
          color: "#000000",
       },
-      height: "42px",
+      height: "56px",
       color: "#ffffff",
    },
 }));

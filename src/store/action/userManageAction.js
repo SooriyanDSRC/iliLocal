@@ -177,4 +177,8 @@ const StartLoader = () => {
     return { type: userManageReducerConstant.USERTABLE_LOADER };
 };
 
+export const isUserLoggingOut = (isLogoutClicked) => (dispatch) => {
+    dispatch({ type: userManageReducerConstant.IS_USER_LOGGING_OUT, value: isLogoutClicked });
+}
+
 const RolesList = (val) => ({ type: userManageReducerConstant.FETCH_ROLES_LIST, value: val });

@@ -15,13 +15,30 @@ import { useDispatch, useSelector } from "react-redux";
 import * as actionCreation from "../../../../src/store/action/dataImportAction";
 import _ from "lodash";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
    dialogTitle: {
       background: "#00648d",
       color: "#ffffff",
    },
    dialogWidth: {
       width: "310px !important"
+   },
+   qcSubmitOk: {
+      width: "15% !important",
+      paddingTop: "10px",
+      marginTop: "10px",
+      marginBottom: "10px",
+      background: "#00648d",
+      borderRadius: 8,
+      color: "#ffffff",
+      textTransform: "none",
+      "&:hover": {
+         backgroundColor: "#00648d",
+         color: "#ffffff"
+      }
+   },
+   actionMargin: {
+      margin: "10px"
    }
 }));
 
@@ -114,12 +131,12 @@ export default function SheetTabs(props) {
                   key={activeStep !== fieldMappingSheetConfig.fieldMappingScreen ? sheetIndex : currentSheet?.index}
                   label={currentSheet.sheetName}
                   control={
-                        <Checkbox
-                           className={value === sheetIndex
-                              ? commonClasses.activeTabCheckBoxColor
-                              : commonClasses.tabCheckBoxColor}
-                           checked={currentSheet?.isTabChecked}
-                           onChange={activeStep !== fieldMappingSheetConfig.fieldMappingScreen ? () => { selectedPanel(sheetIndex) } : ()=> {}} />
+                     <Checkbox
+                        className={value === sheetIndex
+                           ? commonClasses.activeTabCheckBoxColor
+                           : commonClasses.tabCheckBoxColor}
+                        checked={currentSheet?.isTabChecked}
+                        onChange={activeStep !== fieldMappingSheetConfig.fieldMappingScreen ? () => { selectedPanel(sheetIndex) } : () => { }} />
                   }
                />
             }>
@@ -164,15 +181,12 @@ export default function SheetTabs(props) {
                {displayText.WARNING}
             </DialogTitle>
             <DialogContent>
-               <DialogContent>
-                  <b>{displayText.ILI_SUMMARY_SHEET_WARNING_DESCRIPTION}</b>
-               </DialogContent>
+               {displayText.ILI_SUMMARY_SHEET_WARNING_DESCRIPTION}
             </DialogContent>
-            <DialogActions>
+            <DialogActions className={classes.actionMargin}>
                <Button
-                  fullWidth
                   variant="contained"
-                  className={commonClasses.submitNo}
+                  className={commonClasses.qcSubmitOk}
                   onClick={(e) => handleCloseDialog(false)}>
                   {displayText.OK}
                </Button>

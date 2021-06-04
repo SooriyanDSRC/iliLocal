@@ -3,12 +3,13 @@ import { CDropdown, CDropdownItem, CDropdownMenu, CDropdownToggle, CImg, } from 
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useLocation, withRouter } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import { Grid, MenuItem, Select, FormControl } from '@material-ui/core';
 import { displayText, stringManipulationCheck } from '../../constant';
 import { gridWidth } from '../../gridconstants';
 import * as actionCreator from '../../store/action/userAction';
+import { isUserLoggingOut } from '../../store/action/userManageAction';
 import * as dataImportActionCreator from '../../store/action/dataImportAction';
 import { apiRouter, sessionStorageKey } from '../../constant';
 import userAvatar from '../../assets/images/avatar_img.png';
@@ -93,7 +94,7 @@ const HeaderDropdown = () => {
 
    const triggerRevokeToken = () => {
       const url = `${apiRouter.USERS}/${apiRouter.REVOKE_TOKEN}`;
-      dispatch(actionCreator.RevokeToken(url));
+      dispatch(actionCreator.RevokeToken(url, null, history));
    }
 
    const handleCloseStateDropDown = () => {
@@ -109,6 +110,7 @@ const HeaderDropdown = () => {
          setLogout(false);
          await deleteFile(fileName);
          dispatch(dataImportActionCreator.SetFileName(stringManipulationCheck.EMPTY_STRING));
+         dispatch(isUserLoggingOut(true));
          return triggerRevokeToken();
       }
       setSelectedClient(selectedClientCache);
@@ -178,7 +180,7 @@ const HeaderDropdown = () => {
    useEffect(() => {
       setClientsList([...JSON.parse(decryptData(sessionStorageKey.USER_DETAILS)).clients]);
       setSelectedClient(JSON.parse(decryptData(sessionStorageKey.USER_CURRENT_CLIENT_DETAILS))?.clientName);
-   },[]);
+   }, []);
 
    return (
       <>
@@ -232,4 +234,4 @@ const HeaderDropdown = () => {
    );
 };
 
-export default HeaderDropdown;
+export default withRouter(HeaderDropdown);

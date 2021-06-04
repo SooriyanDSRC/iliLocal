@@ -5,7 +5,7 @@ import axios from 'axios';
 import { statusCode, apiRouter, sessionStorageKey, stringManipulationCheck, tokenValidity } from '../../constant';
 import * as actionCreator from "../../store/action/userAction";
 import { useDispatch, useSelector } from "react-redux";
-import { isNotEmptyNullUndefined, isNotNull, decryptData, isNullorUndefined, isCookieValid, clearStorageItems } from '../shared/helper';
+import { isNotEmptyNullUndefined, decryptData, isNullorUndefined, isCookieValid, clearStorageItems } from '../shared/helper';
 import { arrayConstants } from '../../arrayconstants';
 
 export default function Layout() {
@@ -18,6 +18,8 @@ export default function Layout() {
       setInterval(() => checkUserLoggedIn(), tokenValidity.checkUserDetailsInterval);
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, []);
+
+   useEffect(() => { }, [isRefreshCallTriggered]);
 
    const startRefreshTokenTimer = () => {
       if (isNotEmptyNullUndefined(document.cookie)) {

@@ -159,7 +159,7 @@ const createQcFormData = (savedInspectionGuid, data) => {
    const qcInputFormData = new FormData();
    const qcInput = {};
    qcInput.inspectionguid = savedInspectionGuid;
-   qcInput.ilifielddetails = JSON.parse(data.get(formDataInput.excelTemplate)).iliFieldDetails;
+   qcInput.ilifielddetails = JSON.parse(data.excelTemplateDto).iliFieldDetails;
    qcInput.SavedInspectionGuid = null;
    qcInput.VersionId = null;
    qcInputFormData.append(formDataInput.qcInput, JSON.stringify(qcInput));
@@ -539,14 +539,14 @@ const FetchPartialData = (resultData) => {
          let sheetName = isNullUndefined(currentSheetData) && isNullUndefined(keyReference) ? mainDataKeyName.split(stringManipulationCheck.UNDERSCORE_OPERATOR) : stringManipulationCheck.EMPTY_STRING;
          let cols = isNullUndefined(currentSheetData) && isNullUndefined(keyReference) &&
             currentSheetData[mainDataKeyName]?.length > fieldMappingSheetConfig.fieldMapLengthCheck
-            ? Object.keys(_.head(currentSheetData[mainDataKeyName]))
+            ? _.map(_.head(currentSheetData[mainDataKeyName]), "key")
             : [];
          let rowCountReference = currentSheetData[mainDataRowKeyName];
          let rowCount = isNullUndefined(rowCountReference) && _.head(rowCountReference);
          let dataColumns = cols.length > fieldMappingSheetConfig.fieldMapLengthCheck && cols.map((currentCol) => {
             return { key: currentCol, resizable: true, width: fieldMappingSheetConfig.dataGridColumnWidth, name: currentCol }
          });
-         let rows = currentSheetData[mainDataKeyName];
+         let rows = convertRowsToSingleObject(currentSheetData[mainDataKeyName]);
          return { dataColumns, rows, sheetName, rowCount };
       });
       dispatch(FetchExcelDataLazyLoadSuccess(_.head(allSheetData)));
@@ -565,13 +565,13 @@ const FetchAllSheetData = (resultData) => {
                : stringManipulationCheck.EMPTY_STRING;
             let cols = isNullUndefined(currentSheetData) && isNullUndefined(mainDataKeyName) &&
                currentSheetData[mainDataKeyName].length > fieldMappingSheetConfig.fieldMapLengthCheck ?
-               Object.keys(_.head(currentSheetData[mainDataKeyName])) : [];
+               _.map(_.head(currentSheetData[mainDataKeyName]), "key") : [];
             let rowCountReference = currentSheetData[mainDataRowKeyName];
             let rowCount = isNullUndefined(rowCountReference) && _.head(rowCountReference);
             let dataColumns = cols.length > fieldMappingSheetConfig.fieldMapLengthCheck && cols.map((currentCol) => {
                return { key: currentCol, resizable: true, width: fieldMappingSheetConfig.dataGridColumnWidth, name: currentCol }
             });
-            let rows = isNullUndefined(mainDataKeyName) && currentSheetData[mainDataKeyName];
+            let rows = isNullUndefined(mainDataKeyName) && convertRowsToSingleObject(currentSheetData[mainDataKeyName]);
             let genericData = currentSheetData[genericDataKeyName];
             if (genericData && genericData.length !== fieldMappingSheetConfig.fieldMapLengthCheck) {
                let { genericDataColumns, genericRows } = FetchGenericData(currentSheetData, genericDataKeyName);
@@ -588,13 +588,25 @@ const FetchAllSheetData = (resultData) => {
    }
 };
 
+const convertRowsToSingleObject = (rows) => {
+   return rows.map(currentRow => {
+      return convertArrayOfObjectToObject(currentRow);
+   })
+}
+
+const convertArrayOfObjectToObject = (array) => {
+   return _.transform(array, (resultObject, keyValuePair) => {
+      return (resultObject[keyValuePair.key] = keyValuePair.value, resultObject);
+   }, {});
+};
+
 const FetchGenericData = (currentSheetData, keyReference) => {
    let genericColumnReference = _.head(currentSheetData[keyReference]);
-   let genericCols = genericColumnReference ? Object.keys(genericColumnReference) : [];
+   let genericCols = genericColumnReference ? _.map(genericColumnReference, "key") : [];
    let genericDataColumns = genericCols && genericCols.map((currentCol) => {
       return { key: currentCol, resizable: true, width: fieldMappingSheetConfig.headerColumnWidth, name: currentCol }
    });
-   let genericRows = currentSheetData[keyReference];
+   let genericRows = convertRowsToSingleObject(currentSheetData[keyReference]);
    return { genericDataColumns, genericRows };
 };
 
@@ -678,4 +690,12 @@ export const setOperationalLoader = (val) => {
 
 export const removeOperationalLoader = (val) => {
    return { type: dataImportReducerConstant.REMOVE_OPERATIONAL_LOADER, value: val };
+}
+
+export const updateSummaryScreenData = (val) => (dispatch) => {
+   dispatch({ type: dataImportReducerConstant.ILI_SUMMARY_SCREEN_DATA, value: val });
+}
+
+export const updateToolType = (val) => (dispatch) => {
+   dispatch({ type: dataImportReducerConstant.UPDATE_TOOL_TYPE, value: val })
 }

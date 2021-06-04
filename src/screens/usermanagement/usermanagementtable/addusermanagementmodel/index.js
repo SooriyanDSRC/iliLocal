@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
-   Modal, Backdrop, Fade, Grid, Button, TextField, FormControlLabel, MenuItem, ListItemText, InputLabel, Select, FormControl,
+   Modal, Backdrop, Fade, Grid, Button, TextField, FormControlLabel, MenuItem,
+   ListItemText, InputLabel, Select, FormControl,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Close } from "@material-ui/icons";
@@ -19,6 +20,7 @@ import {
 import CommonStyles from "../../../../scss/commonStyles";
 import { modalStylingAttributes } from '../../../../modalconstants';
 import { user, gridWidth } from '../../../../gridconstants';
+import { arrayConstants } from "../../../../arrayconstants";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -63,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
    menuItemStyle: {
       "&:hover": {
          backgroundColor: "#d3dadd !important",
-         color: "#00648d !important",
+         color: "#00648d !important"
       }
    },
    errMsg: {
@@ -143,9 +145,9 @@ export default function AddUserModal(props) {
    const handleSelectAllOperationalArea = () => {
       if (Object.assign([], selectedRoles).length === rolesDropdown.length) {
          setSelectedRoles([]);
-      } else {
-         setSelectedRoles(rolesDropdown);
+         return;
       }
+      setSelectedRoles(rolesDropdown);
    };
 
    const handleInputChange = (type, e) => {
@@ -204,14 +206,14 @@ export default function AddUserModal(props) {
       isAllowedToSave = isTheEmailValid;
       let isEmailExists = await handleCheckEmailExists();
       setCheckEmailExists(isEmailExists.data);
-      if (!isNotEmpty(userName) && !isNotEmpty(userEmail) && !selectedRoles.length > 0) {
+      if (!isNotEmpty(userName) && !isNotEmpty(userEmail) && !selectedRoles.length > arrayConstants.nonEmptyArray) {
          setIsLoading(false);
          return
       }
       if (isEmailExists.data) {
          isAllowedToSave = false;
       }
-      if (isNotEmpty(userName) && isNotEmpty(userEmail) && selectedRoles.length > 0 && isAllowedToSave) {
+      if (isNotEmpty(userName) && isNotEmpty(userEmail) && selectedRoles.length > arrayConstants.nonEmptyArray && isAllowedToSave) {
          let rolesID = _.map(_.cloneDeep(selectedRoles), displayText.ROLE_GUIDE);
          const data = {
             userName: userName,
@@ -585,6 +587,7 @@ export default function AddUserModal(props) {
          </>
       )
    }
+
    const renderPostalPhoneRoles = () => {
       return (
          <>

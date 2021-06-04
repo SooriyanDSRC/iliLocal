@@ -8,6 +8,7 @@ const initialState = {
   isEmailExists: null,
   isAppUserLoaderactive: null,
   applicationuserloader: false,
+  isUserInvite: false
 };
 
 const applicationUserManageReducer = (state = initialState, action = {}) => {
@@ -87,6 +88,11 @@ const applicationUserManageReducer = (state = initialState, action = {}) => {
         ...state,
         isProvisionedToClient: true,
         isAppUserLoaderactive: false,
+      };
+    case applicationUserManageReducerConstant.INVITE_APPLICATION_USER:
+      return {
+        ...state,
+        isUserInvite: action.value,
       };
     default:
       return state;

@@ -175,6 +175,19 @@ const CommonStyles = makeStyles((theme) => ({
       left: "0",
       right: "0",
       margin: "auto"
+   },
+   inviteButton: {
+      margin: theme.spacing(3, 1, 2),
+      background: "#008000",
+      borderRadius: 8,
+      height: "40px",
+      width: "auto !important",
+      color: "#ffffff",
+      textTransform: "none",
+      "&:hover": {
+         backgroundColor: "#1d9e1d",
+         color: "#ffffff"
+      }
    }
 }));
 

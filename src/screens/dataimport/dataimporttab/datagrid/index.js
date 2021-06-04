@@ -42,14 +42,15 @@ export default function DataGridComponent(props) {
    };
 
    const getLazyLoadData = () => {
-      let formData = new FormData();
-      formData.append(formDataInput.isFirstLoad, false);
-      formData.append(formDataInput.sheetIndex, sheetIndex);
-      formData.append(formDataInput.startIndex, allRows.length);
-      formData.append(formDataInput.isSaveClick, false);
-      formData.append(formDataInput.fileName, fileGuid);
+      const bodyData = {
+         isFirstLoad: false,
+         sheetIndex: sheetIndex,
+         startIndex: allRows.length,
+         isSaveClick: false,
+         fileName: fileGuid
+      }
       let url = `${apiRouter.EXCEL_IMPORT}/${apiRouter.IMPORT_EXCEL_DATA}`;
-      dispatch(dataImportActionCreator.FetchExcelData(url, formData, true));
+      dispatch(dataImportActionCreator.FetchExcelData(url, bodyData, true));
    };
 
    const handleScroll = (event) => {

@@ -24,6 +24,7 @@ import {
    formDataInput, stringManipulationCheck, index, regularExpression,
    initialCharacterIndex
 } from "../../constant";
+import { useLocation } from 'react-router-dom';
 import { dataImportGrid, gridWidth } from "../../gridconstants";
 import { fieldMappingSheetConfig, fieldCheck } from "../../dataimportconstants";
 import "react-data-grid/dist/react-data-grid.css";
@@ -31,14 +32,13 @@ import Fieldmapping from "./fieldmapping";
 import {
    isEmpty, isNotEmptyNullUndefined, getSteps, convertToValidPrecisionNumber,
    removeSpecialCharacter, isUndefined, deleteFile, fetchUnitConversion,
-   decryptData, removeCharacter, isNotNull, encryptData
+   decryptData, removeCharacter, isNotNull, encryptData, isNotEmpty, isEmptyNullUndefined
 } from "../../components/shared/helper";
 import * as actionCreator from "../../store/action/dataImportAction";
 import DataEntry from "./dataentry";
 import SplitterLayout from "react-splitter-layout";
 import "react-splitter-layout/lib/index.css";
 import { ProgressBar, Jumbotron, Form } from "react-bootstrap";
-import { v4 as uuidv4 } from "uuid";
 import serviceCall from "../../store/serviceCall";
 import QcDashboard from "./qcdashboard";
 import CommonStyles from '../../scss/commonStyles';
@@ -46,6 +46,7 @@ import Versioning from './versioning';
 import { arrayConstants } from '../../arrayconstants';
 import SwapHorizontalCircleIcon from '@material-ui/icons/SwapHorizontalCircle';
 import ClientChangeModal from '../../components/containers/clientChangeModal';
+import { dataImportReducerConstant } from "../../store/reducerConstant";
 
 const useStyles = makeStyles((theme) => ({
    root: {
@@ -284,6 +285,12 @@ const useStyles = makeStyles((theme) => ({
    errorList: {
       paddingInlineStart: "15px !important",
       marginBottom: "0px !important"
+   },
+   dialogContentText: {
+      fontSize: "16px"
+   },
+   toolTypeActions: {
+      marginTop: "10px"
    }
 }));
 
@@ -292,14 +299,16 @@ const chunkSize = 1048576 * 3; //its 3MB, increase the number measure in mb
 export default function DataImport() {
    const classes = useStyles();
    const dispatch = useDispatch();
+   const location = useLocation();
    const {
-      vendorsList, summaryList, masterList, showOverlayLoader, showOverlayLoaderMessage,
+      vendorsList, summaryList, iliSummaryScreenData, masterList, showOverlayLoader, showOverlayLoaderMessage,
       isVendorOperationalAdded, fieldMappingErrorValidation, fieldMappingErrorValidationValue,
       matchingDetailUpdate, revertCompleted, dataSummaryVendor, dataSummaryOperationalArea,
       operationalList, excelData, matchingDetails, loader, unitList, versionList,
       quantityList, dataSaveCompleted, selectedIliSummarySheetData, featureTypes, isSummaryLoading,
-      isVendorLoading, isOperationalAreaLoading
+      isVendorLoading, isOperationalAreaLoading, toolTypeData
    } = useSelector((state) => state.dataImportManage);
+   const { isLoggingOut } = useSelector((state) => state.userManage);
    const [activeStep, setActiveStep] = useState(0);
    const [selectedVendor, setSelectedVendor] = useState(displayText.DEFAULT_PARENTID);
    const [selectedOperationalArea, setSelectedOperationalArea] = useState(displayText.DEFAULT_PARENTID);
@@ -396,6 +405,8 @@ export default function DataImport() {
    const [dataImportDialog, setDataImportDialog] = useState(false);
 
    const [isVendorOperationalSave, setIsVendorOperationalSave] = useState(false);
+
+   const [isToolTypeDialogVisible, setIsToolTypeDialogVisible] = useState(false);
 
    const fieldMappingInitialData = () => {
       setMOP(false);
@@ -495,7 +506,7 @@ export default function DataImport() {
       });
    };
 
-   const handleNext = () => {
+   const handleNext = (forceNext = false) => {
       const { fileObj } = file;
       if (activeStep === fieldMappingSheetConfig.dataImportScreen && (isEmpty(fileObj) || selectedVendor === displayText.DEFAULT_PARENTID || !confirmCancel)) {
          if (selectedVendor === displayText.DEFAULT_PARENTID) {
@@ -516,7 +527,11 @@ export default function DataImport() {
             setOpenDialog(true);
             return;
          }
+         if (!iliSummaryDataCheck() && !forceNext) {
+            return setIsToolTypeDialogVisible(true);
+         }
          childRef.current.GetDataEntryValues();
+         console.log(iliSummaryScreenData);
          version?.length > arrayConstants.nonEmptyArray
             ? versionChildRef.current.getSearchedData()
             : setActiveStep((prevActiveStep) => prevActiveStep + fieldMappingSheetConfig.incrementStepper);
@@ -569,6 +584,13 @@ export default function DataImport() {
          checkDashboardFields();
       }
    };
+
+   const iliSummaryDataCheck = () => {
+      if (isNotEmptyNullUndefined(toolTypeData) && toolTypeData !== displayText.DEFAULT_PARENTID) {
+         return true;
+      }
+      return false;
+   }
 
    const getFieldMappingData = (overallRelation) => {
       setFieldMappingFieldsData(overallRelation);
@@ -688,17 +710,24 @@ export default function DataImport() {
    }
 
    useEffect(() => {
-      window.addEventListener('beforeunload', function (event) {
-         // event.preventDefault();
-         let userDetail = JSON.parse(decryptData(sessionStorageKey.USER_DETAILS));
-         if (isNotNull(userDetail) && isNotEmptyNullUndefined(fileGuid)) {
-            let url = `${apiRouter.FILE_UPLOAD}/${apiRouter.UPLOAD_CANCEL}?${apiRouter.DELETE_ORIGINAL_FILE}=${false}&${apiRouter.FILE_NAME}=${fileGuid}`;
-            serviceCall.deleteFileCall(url);
-            setFileGuid(stringManipulationCheck.EMPTY_STRING);
-         }
-         // event.returnValue = "";
-      });
-   }, [fileGuid])
+      window.addEventListener('beforeunload', reloadFunction);
+      return () => {
+         window.removeEventListener('beforeunload', reloadFunction);
+      }
+   }, [fileGuid, isLoggingOut]);
+
+   function reloadFunction(event) {
+      // location.pathname === "/data-import" && isNotEmptyNullUndefined(fileGuid) && !isLoggingOut && event.preventDefault();
+      let userDetail = JSON.parse(decryptData(sessionStorageKey.USER_DETAILS));
+      if (isNotNull(userDetail) && isNotEmptyNullUndefined(fileGuid)) {
+         let url = `${apiRouter.FILE_UPLOAD}/${apiRouter.UPLOAD_CANCEL}?${apiRouter.DELETE_ORIGINAL_FILE}=${false}&${apiRouter.FILE_NAME}=${fileGuid}`;
+         serviceCall.deleteFileCall(url);
+         setFileGuid(stringManipulationCheck.EMPTY_STRING);
+      }
+      // if (!isLoggingOut && location.pathname === "/data-import") {
+      //    event.returnValue = "";
+      // }
+   }
 
    const handleOpen = () => {
       setOpen(true);
@@ -880,6 +909,7 @@ export default function DataImport() {
 
    const summaryDataCallback = (summaryData) => {
       setIliDataSummary(summaryData);
+      dispatch(dataImportActionCreator.updateSummaryScreenData(summaryData));
       let columns = [];
       selectedIliSummarySheetData && selectedIliSummarySheetData.forEach((currentSheet, sheetIndex) => {
          currentSheet && currentSheet.dataColumns && currentSheet.dataColumns.forEach((sheetValue) => {
@@ -985,18 +1015,24 @@ export default function DataImport() {
       formData.append(formDataInput.isFirstLoad, true);
       formData.append(formDataInput.excelTemplate, JSON.stringify(saveTemplateJson));
       formData.append(formDataInput.isSaveClick, true);
+      const bodyData = {
+         fileName: fileGuid,
+         isFirstLoad: true,
+         excelTemplateDto: JSON.stringify(saveTemplateJson),
+         isSaveClick: true
+      }
       clearDashboardFields();
       const url = `${apiRouter.EXCEL_IMPORT}/${apiRouter.IMPORT_EXCEL_DATA}`;
-      dispatch(actionCreator.SaveTemplate(url, formData));
+      dispatch(actionCreator.SaveTemplate(url, bodyData));
    };
    //file progressive bar
    useEffect(() => {
-      if (fileSize > 0 && progress <= 100) {
+      if (fileSize > 0 && progress <= 100 && isNotEmpty(fileGuid) && isEmptyNullUndefined(excelData)) {
          setEnableCancel(false);
          fileUpload();
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [fileToBeUpload, progress]);
+   }, [fileToBeUpload, progress, fileGuid]);
 
    useEffect(() => {
       setUnitQuantityList(quantityList);
@@ -1016,7 +1052,7 @@ export default function DataImport() {
       setTabValue(newValue);
    };
 
-   const getFileContext = (e) => {
+   const getFileContext = async (e) => {
       let targetFile = e.target.files[0];
       if (targetFile) {
          if (!targetFile.name.match(regularExpression.EXCEL_FORMATS)) {
@@ -1028,43 +1064,72 @@ export default function DataImport() {
             e.target.value = null;
             return (stringManipulationCheck.EMPTY_STRING);
          }
-         setConfirmCancel(false);
-         resetChunkProperties();
-         const _file = targetFile;
-         setFile({
-            fileObj: targetFile,
-            fileName: targetFile.name,
-         });
-         setFileSize(targetFile.size);
-         setFileName(targetFile.name);
-         const totalCount =
-            targetFile.size % chunkSize === fieldMappingSheetConfig.defaultFileSize
-               ? targetFile.size / chunkSize
-               : Math.floor(targetFile.size / chunkSize) + fieldMappingSheetConfig.counterInitialValue; // Total count of chunks will have been upload to finish the file
-         setChunkCount(totalCount);
-         setFileToBeUpload(targetFile);
-         e.target.value = null;
-         const fileId = uuidv4() + stringManipulationCheck.DOT_OPERATOR + _file.name.split(stringManipulationCheck.DOT_OPERATOR).pop();
-         setFileGuid(fileId);
-         dispatch(dataImportActionCreator.SetFileName(fileId));
-         encryptData(fileId, displayText.FILE_NAME);
-         setIliDataSummary(stringManipulationCheck.EMPTY_STRING);
       }
+      setConfirmCancel(false);
+      resetChunkProperties();
+      const _file = targetFile;
+      setFile({
+         fileObj: targetFile,
+         fileName: targetFile.name,
+      });
+      setFileSize(targetFile.size);
+      setFileName(targetFile.name);
+      const totalCount =
+         targetFile.size % chunkSize === fieldMappingSheetConfig.defaultFileSize
+            ? targetFile.size / chunkSize
+            : Math.floor(targetFile.size / chunkSize) + fieldMappingSheetConfig.counterInitialValue; // Total count of chunks will have been upload to finish the file
+      setChunkCount(totalCount);
+      setFileToBeUpload(targetFile);
+      e.target.value = null;
+      const guidGenerated = await GetFileName(targetFile.name);
+      const fileId = guidGenerated + stringManipulationCheck.DOT_OPERATOR + _file.name.split(stringManipulationCheck.DOT_OPERATOR).pop();
+      setFileGuid(fileId);
+      dispatch(dataImportActionCreator.SetFileName(fileId));
+      encryptData(fileId, displayText.FILE_NAME);
+      setIliDataSummary(stringManipulationCheck.EMPTY_STRING);
    };
 
    const fileUpload = () => {
       setOverlayText(displayText.FILE_UPLOADING);
       dispatch(dataImportActionCreator.SelectedILISummarySheetData(null));
-      if (counter <= chunkCount) {
+      if (counter <= chunkCount && isNotEmpty(fileGuid)) {
          let chunk = fileToBeUpload.slice(beginningOfTheChunk, endOfTheChunk);
          uploadChunk(chunk);
       }
    };
 
+   function GetFileName(fileName) {
+      return new Promise((resolve, reject) => {
+         try {
+            const fileExtension = _.last(fileName.split("."));
+            const url = `${apiRouter.FILE_UPLOAD}/${apiRouter.GET_FILE_NAME}?${displayText.FILE_NAME}=.${fileExtension}`;
+            serviceCall.getAllData(url).then((result) => {
+               const data = result.data;
+               if (data && result.status === 200) {
+                  resolve(data);
+               } else {
+                  dispatch(snackbarActionCreator.showFailureSnackbar(errorMessage.FILE_FORMAT_NOT_ALLOWED));
+                  setShowProgress(false);
+                  setFileSize(fieldMappingSheetConfig.defaultFileSize);
+                  setFileName(stringManipulationCheck.EMPTY_STRING);
+               }
+            });
+         }
+         catch (e) {
+            reject(e);
+         }
+      })
+   }
+
    const uploadChunk = async (chunk) => {
       try {
-         const url = `${apiRouter.FILE_UPLOAD}/${apiRouter.UPLOAD_CHUNKS}?${apiRouter.ID}=${counter}&${apiRouter.FILE_NAME}=${fileGuid}`;
-         serviceCall.postData(url, chunk).then((result) => {
+         let formData = new FormData();
+         let file = blobToFile(chunk, fileName)
+         formData.append(displayText.CHUNK_NAME, fileGuid);
+         formData.append(apiRouter.CHUNK_NUMBER, counter);
+         formData.append(displayText.FILE, file);
+         const url = `${apiRouter.FILE_UPLOAD}/${apiRouter.UPLOAD_CHUNK}`;
+         serviceCall.postData(url, formData).then((result) => {
             const data = result.data;
             if (data && data.isSuccess) {
                setEnableRestart(false);
@@ -1097,6 +1162,10 @@ export default function DataImport() {
       }
    };
 
+   function blobToFile(theBlob, fileName) {
+      return new File([theBlob], fileName, { lastModified: fileToBeUpload.lastModified, type: fileToBeUpload.type, })
+   }
+
    const uploadCompleted = async () => {
       let formData = new FormData();
       formData.append(formDataInput.isFirstLoad, true);
@@ -1105,12 +1174,22 @@ export default function DataImport() {
       formData.append(formDataInput.excelTemplate, null);
       formData.append(formDataInput.isSaveClick, false);
       formData.append(formDataInput.vendorGuid, selectedVendor);
+      const bodyData = {
+         isFirstLoad: true,
+         sheetIndex: fieldMappingSheetConfig.fileUploadIndex,
+         startIndex: fieldMappingSheetConfig.fileUploadIndex,
+         excelTemplateDto: null,
+         isSaveClick: false,
+         // vendorGuid: selectedVendor,
+         fileName: fileGuid,
+         // createdBy: "ganeshwari.k@dsrc.co.in"
+      }
       const url = `${apiRouter.FILE_UPLOAD}/${apiRouter.UPLOAD_COMPLETE}?${formDataInput.fileName}=${fileGuid}`;
       serviceCall.postData(url, formData).then((result) => {
          const data = result.data;
          if (data?.isSuccess) {
             formData.append(formDataInput.fileName, fileGuid);
-            getPreviewData(formData);
+            getPreviewData(bodyData);
          } else {
             dispatch(snackbarActionCreator.showFailureSnackbar(errorMessage.UPLOAD_COMPLETE_FAIL));
          }
@@ -1754,8 +1833,8 @@ export default function DataImport() {
                                     {renderQcInfo(displayText.MAOP_COLUMN)}
                                  </FormControl>
                               ) : (
-                                 stringManipulationCheck.EMPTY_STRING
-                              )}
+                                    stringManipulationCheck.EMPTY_STRING
+                                 )}
                            </div>
                            <div className="col-sm-2 text-center">
                               <span className="pointer">
@@ -1789,8 +1868,8 @@ export default function DataImport() {
                                              className="qcInputRadio" />
                                        </>
                                     ) : (
-                                       stringManipulationCheck.EMPTY_STRING
-                                    )}
+                                          stringManipulationCheck.EMPTY_STRING
+                                       )}
                                  </RadioGroup>
                               </FormControl>
                            </div>
@@ -1920,8 +1999,8 @@ export default function DataImport() {
                                              className="qcInputRadio" />
                                        </>
                                     ) : (
-                                       stringManipulationCheck.EMPTY_STRING
-                                    )}
+                                          stringManipulationCheck.EMPTY_STRING
+                                       )}
                                  </RadioGroup>
                               </FormControl>
                            </div>
@@ -2002,6 +2081,46 @@ export default function DataImport() {
          </Dialog >
       )
    };
+
+   const onToolTypeWarningAction = (isContinued) => {
+      setIsToolTypeDialogVisible(false);
+      if (isContinued) {
+         return handleNext(true);
+      }
+      return;
+   }
+
+   const renderToolTypeDialog = () => {
+      return (
+         <Dialog
+            open={isToolTypeDialogVisible}
+            onClose={(e) => setIsToolTypeDialogVisible(false)}
+            disableBackdropClick={true}>
+            <DialogTitle className={commonClasses.dialogTitle}>
+               {displayText.WARNING}
+            </DialogTitle>
+            <DialogContent>
+               Tool type is not selected. Do you wish to continue?
+            </DialogContent>
+            <DialogActions className={classes.toolTypeActions}>
+               <Button
+                  fullWidth
+                  variant="contained"
+                  className={classes.qcSubmitOk}
+                  onClick={(e) => onToolTypeWarningAction(true)}>
+                  {displayText.YES}
+               </Button>
+               <Button
+                  fullWidth
+                  variant="contained"
+                  className={classes.qcsubmitOk}
+                  onClick={(e) => onToolTypeWarningAction(false)}>
+                  {displayText.NO}
+               </Button>
+            </DialogActions>
+         </Dialog>
+      )
+   }
 
    const clearDashboardFields = () => {
       setDashboardFieldDialogOpen(false);
@@ -2098,14 +2217,14 @@ export default function DataImport() {
                      </FormControl>
                      {selectedVendor === displayText.DEFAULT_PARENTID &&
                         isShowError ? (
-                        <>
-                           <div className={classes.errorMessageStyle}>
-                              {errorMessage.PLEASE_SELECT_VENDOR}{" "}
-                           </div>
-                        </>
-                     ) : (
-                        <></>
-                     )}
+                           <>
+                              <div className={classes.errorMessageStyle}>
+                                 {errorMessage.PLEASE_SELECT_VENDOR}{" "}
+                              </div>
+                           </>
+                        ) : (
+                           <></>
+                        )}
                   </Grid>
                </Grid>
             </div>
@@ -2488,6 +2607,7 @@ export default function DataImport() {
             {renderQcDashboardInputFields()}
             {renderFieldMappingValidationDialog()}
             {renderRedirectWarningDialog()}
+            {renderToolTypeDialog()}
             {unitOfMeasureDialog && renderUnitsDialog()}
          </div>
          <ClientChangeModal
@@ -2497,4 +2617,4 @@ export default function DataImport() {
          </ClientChangeModal>
       </>
    );
-}
+};

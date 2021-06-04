@@ -11,7 +11,7 @@ import FormControl from "@material-ui/core/FormControl";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { errorMessage, regularExpression, displayText, apiRouter, stringManipulationCheck, routerConstants } from "../../constant";
-import { isEmpty, removeCookie, isUndefined } from '../../components/shared/helper';
+import { isEmpty, removeCookie, isUndefined, isNullorUndefined } from '../../components/shared/helper';
 import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import LoadingOverlay from "react-loading-overlay";
@@ -114,6 +114,7 @@ export default function SetPassword() {
    const errMsg = useSelector((state) => state.user.errMsg);
    let { isSetPasswordLoaderactive, isPasswordUpdated, isResetTokenExpired } = useSelector((state) => state.user);
    const resetPasswordUrlValue = history.location.search.split(displayText.URL_TOKEN)[displayText.URL_INDEX];
+   const userActivationToken = history.location.search.split(displayText.USER_ACTIVATION_TOKEN)[displayText.URL_INDEX]
    const userGuid = history.location.search.split(displayText.URL_USER_GUID)[displayText.URL_INDEX];
    const dispatch = useDispatch();
    const [newPassword, setNewPassword] = useState(stringManipulationCheck.EMPTY_STRING);
@@ -174,16 +175,20 @@ export default function SetPassword() {
          let resetPasswordData = {
             resetToken: resetPassword[0],
             usersGuid: resetPassword[1],
-            password: confirmPassword,
+            password: confirmPassword
          };
          dispatch(actionCreator.UpdatePassword(resetPasswordURL, resetPasswordData, apiRouter.UPDATE_PASSWORD));
          return;
       }
-      let updatePasswordData = {
-         usersGuid: userGuid,
-         password: confirmPassword,
-      };
-      dispatch(actionCreator.UpdatePassword(updatePasswordURL, updatePasswordData, apiRouter.UPDATE_PASSWORD));
+      if (isUndefined(userActivationToken)) {
+         let resetPassword = userActivationToken.split(displayText.URL_USER_GUID);
+         let updatePasswordData = {
+            usersGuid: userGuid,
+            password: confirmPassword,
+            updatePasswordToken: resetPassword[0]
+         };
+         dispatch(actionCreator.UpdatePassword(updatePasswordURL, updatePasswordData, apiRouter.UPDATE_PASSWORD));
+      }
    };
 
    const handleInput = (fieldName, e) => {

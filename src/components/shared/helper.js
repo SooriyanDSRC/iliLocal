@@ -1,7 +1,9 @@
 import serviceCall from "../../store/serviceCall";
-import { displayText, regularExpression, dataTypeCheck, stringManipulationCheck, apiRouter, tokenValidity, sessionStorageKey } from "../../constant";
-import { wizardStepper, fieldCheck } from "../../dataimportconstants";
-import { fieldMappingSheetConfig } from "../../dataimportconstants";
+import {
+   displayText, regularExpression, dataTypeCheck, stringManipulationCheck, apiRouter,
+   tokenValidity, sessionStorageKey
+} from "../../constant";
+import { wizardStepper, fieldCheck, fieldMappingSheetConfig } from "../../dataimportconstants";
 import moment from "moment";
 import _ from "lodash";
 import CryptoAES from 'crypto-js/aes';
@@ -54,7 +56,8 @@ export function splitString(data) {
 }
 
 export function isEmailValid(email) {
-   return (email !== stringManipulationCheck.EMPTY_STRING && regularExpression.EMAIL.test(String(email).toLowerCase()));
+   return (email !== stringManipulationCheck.EMPTY_STRING &&
+      regularExpression.EMAIL.test(String(email).toLowerCase()));
 }
 
 export function isNullUndefined(data) {
@@ -99,6 +102,10 @@ export function convertToISODate(date) {
 
 export function formatDate(date) {
    return isNotEmptyNullUndefined(date) ? moment.utc(date) : stringManipulationCheck.EMPTY_STRING;
+}
+
+export function formatDateIntoReadable(date) {
+   return isNotEmptyNullUndefined(date) ? moment(date).format(displayText.DATE_FORMAT) : stringManipulationCheck.EMPTY_STRING;
 }
 
 export function isDotEmpty(data) {

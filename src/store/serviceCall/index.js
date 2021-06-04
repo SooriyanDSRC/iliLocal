@@ -127,7 +127,7 @@ export default {
   getExcelPreview: (url, data) => new Promise((resolve, reject) => {
     axios.post(`${apiUrl}api/${url}`, data, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': 'application/json',
         Authorization: `${displayText.BEARER} ${document.cookie.split(stringManipulationCheck.ASSIGNTO_OPERATOR)[arrayConstants.tokenData]}`,
         ClientsGuid: `${JSON.parse(decryptData(sessionStorageKey.USER_CURRENT_CLIENT_DETAILS))?.clientsGuid}`
       },

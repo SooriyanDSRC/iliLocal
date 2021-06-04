@@ -15,7 +15,9 @@ import { displayText, apiRouter, sessionStorageKey, stringManipulationCheck } fr
 import { userTableHeader } from "../../../tableheaderconstant";
 import AddModal from "./addusermanagementmodel";
 import _ from "lodash";
-import { isNullUndefined, isUndefined, isNotEmptyNullUndefined, findFeatures, findFeaturesRole, decryptData, getDirection } from "../../../components/shared/helper";
+import { isNullUndefined, isUndefined, isNotEmptyNullUndefined, findFeatures, findFeaturesRole, decryptData, getDirection, isNotNull } from "../../../components/shared/helper";
+import CommonStyles from '../../../scss/commonStyles';
+import * as appUserActionCreator from "../../../store/action/applicationUserManageAction";
 
 const useStyles = makeStyles((theme) => ({
    table: {
@@ -78,6 +80,7 @@ export default function UserManagementTable(props) {
    const [currentUserFlag, setCurrentUserFlag] = useState(null);
    const [isAdminUserRole, setIsAdminUserRole] = useState(null);
    const [showSubFeatures, setShowSubFeatures] = useState(false);
+   const commonClasses = CommonStyles();
 
    const handleActionClick = (e, user) => {
       if (!handleUserActionRole(user)) {
@@ -183,6 +186,52 @@ export default function UserManagementTable(props) {
       }
    }, [props.userRoles]);
 
+   const handleUserInvite = (email) => {
+      let url = `${apiRouter.USERS}/${apiRouter.USER_ACTIVATION_TOKEN}`;
+      let userData = {
+         email: email,
+      };
+      dispatch(appUserActionCreator.UserInvite(url, userData));
+   }
+
+   const isSendInvite = (user) => {
+      return (isNotNull(user?.isUserActivationTokenExpired) && isNotNull(user?.isUserActivated)
+         && (user?.isUserActivationTokenExpired && !user?.isUserActivated));
+   }
+
+   const sendInvite = (user) => {
+      return (
+         isSendInvite(user) ?
+            <TableCell>
+               <Button
+                  className={commonClasses.inviteButton}
+                  onClick={(e) => handleUserInvite(user?.email)}>
+                  <b>{displayText.INVITE}</b>
+               </Button>
+            </TableCell>
+            : <TableCell></TableCell>)
+   }
+
+   const renderShowSubFeatures = (showSubFeatures) => {
+      return (showSubFeatures &&
+         <Menu
+            id="long-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={open}
+            onClose={handleClose}
+            PaperProps={{ className: classes.menuHeight }}>
+            {findFeatures(props.userRoles?.operations, displayText.EDIT_USER)
+               ? (
+                  <MenuItem onClick={handleEditUser}>
+                     <Edit />
+                     {displayText.EDIT}
+                  </MenuItem>
+               ) : (<></>)}
+            {renderDelete(props)}
+         </Menu>)
+   }
+
    const renderTableHeader = () => {
       return (
          <TableHead>
@@ -198,6 +247,7 @@ export default function UserManagementTable(props) {
                   </TableCell>
                ))}
                <TableCell />
+               {props.isActive ? <TableCell></TableCell> : stringManipulationCheck.EMPTY_STRING}
             </TableRow>
          </TableHead>
       )
@@ -216,6 +266,7 @@ export default function UserManagementTable(props) {
                <TableCell>{user.country}</TableCell>
                <TableCell>{user.postalcode}</TableCell>
                <TableCell>{user.phone}</TableCell>
+               {props.isActive ? sendInvite(user) : stringManipulationCheck.EMPTY_STRING}
                <TableCell>
                   <IconButton className={handleUserActionRole(user) ? classes.enableActionIcon : classes.disableActionIcon} onClick={(e) => handleActionClick(e, user)}>
                      <MoreVertIcon ></MoreVertIcon>

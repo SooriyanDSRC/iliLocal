@@ -54,10 +54,9 @@ const DatePickerDialog = (props) => {
          </DialogTitle>
          <DialogContent className={classes.dialogContentPadding}>
             <KeyboardDatePicker
-               disableToolbar
                variant="static"
                margin="normal"
-               format={displayText.DATE_FORMAT}
+               format={displayText.DATE_PICKER_DATE_FORMAT}
                label={heading}
                className={(commonClasses.textField, "DataEntryDateTextField")}
                InputLabelProps={{ shrink: true }}
